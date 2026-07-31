@@ -1,0 +1,39 @@
+name: AutoScript upstream
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - id: check
+        run: node scripts/check-upstream.ts
+      # Nota para quien revise el pull request: nace sin comprobaciones porque
+      # un push con el GITHUB_TOKEN por defecto no dispara los workflows. Hay
+      # que lanzarlas a mano desde la pestaña Actions antes de mezclar.
+      - name: Abrir pull request
+        if: hashFiles('upstream-change.txt') != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          BRANCH="upstream/$(node -p "require('./autoscript.lock.json').tag")"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "${BRANCH}"
+          git add autoscript.lock.json
+          git commit -m "Update pinned AutoScript to $(node -p "require('./autoscript.lock.json').tag")"
+          git push -u origin "${BRANCH}"
+          gh pr create \
+            --title "Actualizar AutoScript fijado a $(node -p "require('./autoscript.lock.json').tag")" \
+            --body-file upstream-change.txt
