@@ -42,9 +42,13 @@ REST, UI, validación criptográfica ni lógica específica de WordPress.
 Antes de publicar cambios ejecuta:
 
 ```bash
-npm ci
-npm run check
+make install
+make check
 ```
+
+Usa `make lint`, `make test` y `make build` como las mismas puertas que ejecuta
+CI. `make fix` aplica el formato localmente y no debe usarse como sustituto de
+una comprobación limpia en el pipeline.
 
 Los cambios de API necesitan tests. Conserva los datos nativos al normalizar
 errores. Prueba casos de cancelación, operaciones ausentes, entradas binarias y
