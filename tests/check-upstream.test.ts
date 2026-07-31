@@ -30,7 +30,8 @@ describe("buildUpdatedLock", () => {
       versionCode: 4,
       protocolVersion: 4,
     });
-    expect(next.sha256).toHaveLength(64);
+    expect(next.sha256).not.toBe(current.sha256);
+    expect(next.sha256).toMatch(/^[0-9a-f]{64}$/);
   });
 });
 
