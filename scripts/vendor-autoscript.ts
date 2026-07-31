@@ -33,6 +33,20 @@ export async function readLock(path: string): Promise<UpstreamLock> {
 }
 
 /**
+ * Comprueba que el fichero declara la misma versión que registra el pin. La
+ * huella detecta contenido distinto del fijado; esta comprobación detecta un
+ * pin incoherente consigo mismo.
+ */
+function assertDeclaredVersion(source: string, lock: UpstreamLock): void {
+  const constants = parseAutoscriptConstants(source);
+  if (constants.version !== lock.autoscript.version) {
+    throw new Error(
+      `El fichero declara VERSION ${constants.version} y el pin dice ${lock.autoscript.version}`,
+    );
+  }
+}
+
+/**
  * Deja en `destination` el AutoScript fijado. No usa la red si la copia local
  * ya coincide con la huella del pin. Aborta si lo descargado no coincide.
  */
@@ -43,6 +57,7 @@ export async function verifyOrDownload(
 ): Promise<"cached" | "downloaded"> {
   const cached = await readFile(destination).catch(() => undefined);
   if (cached && sha256Hex(cached) === lock.sha256) {
+    assertDeclaredVersion(new TextDecoder().decode(cached), lock);
     return "cached";
   }
 
@@ -61,13 +76,7 @@ export async function verifyOrDownload(
     );
   }
 
-  const source = new TextDecoder().decode(downloaded);
-  const constants = parseAutoscriptConstants(source);
-  if (constants.version !== lock.autoscript.version) {
-    throw new Error(
-      `El fichero declara VERSION ${constants.version} y el pin dice ${lock.autoscript.version}`,
-    );
-  }
+  assertDeclaredVersion(new TextDecoder().decode(downloaded), lock);
 
   await mkdir(dirname(destination), { recursive: true });
   await writeFile(destination, downloaded);

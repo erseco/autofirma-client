@@ -83,4 +83,23 @@ describe("verifyOrDownload", () => {
       /VERSION/,
     );
   });
+
+  it("aborta en caché cuando el VERSION declarado no coincide con el pin, sin tocar la red", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "vendor-"));
+    const destination = join(directory, "autoscript.js");
+    const incoherente =
+      'var VERSION = "1.10.1";\nvar VERSION_CODE = 4;\nvar PROTOCOL_VERSION = 4;\n';
+    await writeFile(destination, incoherente);
+    const lock = {
+      ...lockFor(incoherente),
+      autoscript: { version: "1.9.0", versionCode: 3, protocolVersion: 4 },
+    };
+    const fail = async () => {
+      throw new Error("no debería descargar");
+    };
+
+    await expect(verifyOrDownload(lock, destination, fail)).rejects.toThrow(
+      /VERSION/,
+    );
+  });
 });
