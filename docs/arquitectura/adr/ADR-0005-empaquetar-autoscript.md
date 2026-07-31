@@ -82,11 +82,12 @@ servirlo.
 
 ## Validación
 
-`npm pack --dry-run` debe listar `vendor/autoscript.js`. El workflow de
-release verifica que el tarball contiene `vendor/autoscript.js` con el
-`sha256` del lock. Pruebas de Vitest cubren `verifyOrDownload`: acepta la
-copia local cuando la huella coincide y rechaza un contenido descargado que no
-coincida con el `sha256` del lock.
+`npm pack --dry-run` debe listar `vendor/autoscript.js`. La verificación del
+`sha256` contra el lock ocurre antes de empaquetar, en el propio script de
+`prepack`, que aborta si no coincide; el workflow de release comprueba además
+que el tarball generado contiene `vendor/autoscript.js`. Pruebas de Vitest
+cubren `verifyOrDownload`: acepta la copia local cuando la huella coincide y
+rechaza un contenido descargado que no coincida con el `sha256` del lock.
 
 ## Referencias
 

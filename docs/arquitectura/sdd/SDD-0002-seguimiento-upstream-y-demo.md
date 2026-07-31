@@ -42,7 +42,7 @@ Cuatro hechos verificados condicionan todo lo demás:
 1. **La constante interna no ordena.** El fichero declara su propia
    `var VERSION`, pero no crece con los tags: `v1.9.1` (2026-04-29) lleva
    `1.10.1` y `v1.9.2` (2026-05-12, posterior) lleva `1.9.0`, porque `v1.9.2`
-   cuelga de otra línea (`diverged, ahead 1, behind 211` respecto a `master`).
+   cuelga de otra línea (`diverged, ahead 1, behind 209` respecto a `v1.9.1`).
    Una clave que retrocede no sirve para versionar releases.
 2. **El tag sí representa lo distribuido.** El `autoscript.js` del paquete
    oficial descargado de `clienteafirma-1.9.2` y el del tag git `v1.9.2` son

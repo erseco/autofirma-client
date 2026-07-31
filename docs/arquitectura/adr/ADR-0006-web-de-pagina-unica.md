@@ -58,6 +58,16 @@ disparo pasan de `docs/**` y `zensical.toml` a `web/**`, `src/**` y
 
 Se adopta la opción 3. `npm run build:web` compila la página única junto con
 `autoscript.js` a `site/`, que es lo que publica `docs.yml` en GitHub Pages.
+
+La opción 1 no resuelve el problema: conserva Python y la demo seguiría
+descrita en prosa en vez de ejecutada. La opción 2 cambia una dependencia
+externa por otra: un generador de sitios en Node sigue exigiendo un tema, un
+modelo de contenido y su propio proceso de build para publicar una sola
+página con una demo incrustada, en vez de reutilizar el mismo `tsup` que ya
+compila la librería. Una demo ejecutable es código, no contenido: no gana
+nada de pasar por un generador pensado para producir varias páginas a partir
+de Markdown.
+
 Los ADR y los SDD se quedan como Markdown en `docs/arquitectura/`, que GitHub
 ya renderiza sin generador.
 

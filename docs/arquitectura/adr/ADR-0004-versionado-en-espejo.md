@@ -42,7 +42,7 @@ La constante interna no ordena. El tag `v1.9.1` (2026-04-29) trae
 `autoscript.js` con `VERSION = "1.10.1"`, y el tag `v1.9.2` (2026-05-12),
 publicado después, trae `VERSION = "1.9.0"`: `v1.9.2` cuelga de una línea
 divergente, `git compare v1.9.1...v1.9.2` informa `diverged, ahead 1, behind
-211`. Una clave que retrocede entre dos publicaciones consecutivas no sirve
+209`. Una clave que retrocede entre dos publicaciones consecutivas no sirve
 para ordenarlas.
 
 ## Decisión
@@ -52,6 +52,14 @@ por orden numérico, entre los que siguen el patrón `vX.Y[.Z]` del repositorio
 oficial `ctt-gob-es/clienteafirma`, normalizando `v1.9` a `1.9.0`. Se descartan
 el legado (`OT_*`, `Version_*`) y las candidatas a release (`v1.9_RC`), que un
 orden textual colocaría por delante del release definitivo.
+
+La opción 1 queda descartada por la evidencia anterior: la propia constante no
+ordena. La opción 2 ordenaría por la fecha que informa el servidor del
+repositorio oficial, un dato ajeno al contenido del tag y que puede cambiar si
+el tag se reetiqueta; el orden numérico de la opción 3 se deriva del propio
+nombre del tag, así que cualquiera puede reproducirlo sin consultar ninguna
+API. En el caso de `v1.9.1` y `v1.9.2` ambos órdenes coinciden, pero solo el
+numérico no depende de un dato externo al propio tag.
 
 ## Consecuencias
 
