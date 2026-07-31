@@ -21,15 +21,24 @@ jobs:
           registry-url: https://registry.npmjs.org
           package-manager-cache: false
       - run: make install
-      - name: Verificar versión
+      - name: Verificar versión y pin
         run: |
           PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+          LOCK_TAG="$(node -p "require('./autoscript.lock.json').tag")"
           test "v${PACKAGE_VERSION}" = "${GITHUB_REF_NAME}"
+          test "v${PACKAGE_VERSION}" = "${LOCK_TAG}"
       - run: make lint
       - run: make test
       - run: make build
       - run: mkdir artifacts
       - run: npm pack --pack-destination artifacts
+      - name: Verificar el contenido del tarball
+        run: |
+          TARBALL="$(ls artifacts/*.tgz)"
+          tar -tzf "${TARBALL}" | grep -q "package/vendor/autoscript.js"
+          tar -xzOf "${TARBALL}" package/vendor/autoscript.js | shasum -a 256 | cut -d" " -f1 > /tmp/packed.sha
+          node -p "require('./autoscript.lock.json').sha256" > /tmp/pinned.sha
+          diff /tmp/packed.sha /tmp/pinned.sha
       - run: npm publish
       - name: Crear GitHub Release
         env:

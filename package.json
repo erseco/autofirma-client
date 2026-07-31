@@ -1,6 +1,6 @@
 {
   "name": "@erseco/autofirma-client",
-  "version": "1.9.0",
+  "version": "1.9.2",
   "description": "Cliente TypeScript moderno para integrar AutoScript y AutoFirma en aplicaciones web",
   "keywords": [
     "autofirma",
