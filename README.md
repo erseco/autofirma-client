@@ -155,10 +155,13 @@ La CI ejecuta formato, TypeScript, tests con cobertura y construcción en Node
 > [!NOTE]
 > `prepack` (y por tanto `npm pack` y `npm publish`) ejecuta
 > `scripts/vendor-autoscript.ts` directamente con `node`, que necesita el
-> soporte nativo de tipos de Node ≥22.6. Es intencional: la librería en sí
-> es compatible con Node 20 (`engines.node`), pero los scripts de
-> mantenimiento no. Empaquetar con Node 20 falla con un error de sintaxis
-> poco claro; usa Node 22 o superior para generar el tarball o publicar.
+> soporte nativo de tipos activado por defecto (Node ≥22.18 o ≥23.6; en
+> versiones anteriores de la línea 22 existe solo tras la flag
+> `--experimental-strip-types`). Es intencional: la librería en sí es
+> compatible con Node 20 (`engines.node`), pero los scripts de mantenimiento
+> no. Empaquetar con una versión de Node anterior a esa falla con un error de
+> sintaxis poco claro; usa Node 22.18 o superior para generar el tarball o
+> publicar.
 
 Los objetivos rápidos son:
 
