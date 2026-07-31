@@ -131,7 +131,7 @@ export class AutoFirmaClient implements SignatureClient {
    *
    * Con `checkType: "CT_OBLIGATORY"` y un desfase detectado, AutoScript marca
    * un estado interno (`severeTimeDelay`) que hace que su función de carga
-   * (`cargarAppAfirma`, la que invoca `initialize()`) registre un aviso y
+   * (`cargarAppAfirma`, a la que invoca `initialize()`) registre un aviso y
    * retorne sin hacer nada la siguiente vez que se ejecute. El orden de
    * llamadas importa y no está documentado: invocar
    * `checkTime({ checkType: "CT_OBLIGATORY" })` antes de `initialize()` puede
