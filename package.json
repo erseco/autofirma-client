@@ -34,10 +34,12 @@
       "types": "./dist/testing/index.d.ts",
       "import": "./dist/testing/index.js",
       "require": "./dist/testing/index.cjs"
-    }
+    },
+    "./autoscript.js": "./vendor/autoscript.js"
   },
   "files": [
     "dist",
+    "vendor",
     "LICENSE",
     "README.md"
   ],
@@ -50,11 +52,12 @@
     "check": "npm run format:check && npm run typecheck && npm test && npm run build",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "prepack": "npm run build",
+    "prepack": "npm run vendor && npm run build",
     "prepare": "npm run build",
     "test": "vitest run --coverage",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "vendor": "node scripts/vendor-autoscript.ts"
   },
   "publishConfig": {
     "access": "public"

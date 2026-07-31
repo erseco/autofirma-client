@@ -2,6 +2,7 @@ coverage/
 dist/
 node_modules/
 site/
+vendor/
 *.tgz
 .DS_Store
 .worktrees/
