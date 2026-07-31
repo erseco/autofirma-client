@@ -1,7 +1,10 @@
 /**
  * Resumen del certificado que ha devuelto AutoFirma. No valida nada: describe
  * los campos que trae el propio certificado (titular, emisora, vigencia y
- * número de serie), tal y como los imprimiría `openssl x509 -noout -text`.
+ * número de serie), extraídos con el mismo criterio que
+ * `openssl x509 -noout -subject -issuer -serial -dates`, pero como texto
+ * plano de los valores del nombre distinguido (sin los prefijos `C=`, `O=`,
+ * `CN=` que añade `openssl`).
  */
 export interface CertificateSummary {
   readonly subject: string;
@@ -94,13 +97,19 @@ function readName(data: Uint8Array): string {
 /**
  * Interpreta `UTCTime` (`YYMMDDHHMMSSZ`) y `GeneralizedTime`
  * (`YYYYMMDDHHMMSSZ`).
+ *
+ * Para `UTCTime`, el año de dos dígitos se interpreta según la regla de la
+ * RFC 5280 (sección 4.1.2.5.1): `YY >= 50` es `19YY`, y `YY < 50` es `20YY`.
  */
 function readTime(element: Element): Date {
   const text = new TextDecoder().decode(element.content);
   const isGeneralized = element.tag === TAG_GENERALIZED_TIME;
+  const twoDigitYear = Number(text.slice(0, 2));
   const year = isGeneralized
     ? Number(text.slice(0, 4))
-    : 2000 + Number(text.slice(0, 2));
+    : twoDigitYear >= 50
+      ? 1900 + twoDigitYear
+      : 2000 + twoDigitYear;
   const rest = isGeneralized ? text.slice(4) : text.slice(2);
   const month = Number(rest.slice(0, 2)) - 1;
   const day = Number(rest.slice(2, 4));
