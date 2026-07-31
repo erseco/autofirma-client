@@ -1,4 +1,6 @@
 export { AutoFirmaClient } from "./client.js";
+export { loadAutoScript } from "./loader.js";
+export type { LoadOptions } from "./loader.js";
 export { AutoFirmaError, AutoScriptUnavailableError } from "./errors.js";
 export { serializeParameters } from "./parameters.js";
 export { toBase64 } from "./base64.js";
