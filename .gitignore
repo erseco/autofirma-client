@@ -5,3 +5,4 @@ site/
 *.tgz
 .DS_Store
 .worktrees/
+.superpowers/
