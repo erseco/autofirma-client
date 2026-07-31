@@ -1,0 +1,32 @@
+[project]
+site_name = "AutoFirma Client"
+site_description = "Cliente TypeScript para integrar AutoScript y AutoFirma"
+site_url = "https://erseco.github.io/autofirma-client/"
+repo_url = "https://github.com/erseco/autofirma-client"
+repo_name = "erseco/autofirma-client"
+docs_dir = "docs"
+site_dir = "site"
+nav = [
+  { "Inicio" = "index.md" },
+  { "Guía" = [
+    { "Instalación" = "guia/instalacion.md" },
+    { "Uso básico" = "guia/uso-basico.md" },
+    { "Seguridad y privacidad" = "seguridad.md" },
+    { "Compatibilidad" = "compatibilidad.md" }
+  ] },
+  { "Ejemplos" = "ejemplos/index.md" },
+  { "API" = "api/index.md" },
+  { "Arquitectura" = [
+    { "Introducción" = "arquitectura/README.md" },
+    { "ADR" = "arquitectura/adr/records.md" },
+    { "SDD" = "arquitectura/sdd/records.md" }
+  ] }
+]
+
+[project.theme]
+language = "es"
+features = [
+  "navigation.sections",
+  "navigation.top",
+  "content.code.copy"
+]

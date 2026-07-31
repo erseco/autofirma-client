@@ -1,0 +1,3 @@
+Documento ficticio para probar una firma CAdES con AutoFirma Client.
+
+No contiene datos personales ni produce efectos jurídicos.

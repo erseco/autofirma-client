@@ -1,0 +1,73 @@
+{
+  "name": "@erseco/autofirma-client",
+  "version": "1.9.0",
+  "description": "Cliente TypeScript moderno para integrar AutoScript y AutoFirma en aplicaciones web",
+  "keywords": [
+    "autofirma",
+    "autoscript",
+    "firma-electronica",
+    "pades",
+    "cades",
+    "xades"
+  ],
+  "license": "GPL-2.0-or-later",
+  "author": "Ernesto Serrano",
+  "homepage": "https://erseco.github.io/autofirma-client/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/erseco/autofirma-client.git"
+  },
+  "bugs": {
+    "url": "https://github.com/erseco/autofirma-client/issues"
+  },
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./testing": {
+      "types": "./dist/testing/index.d.ts",
+      "import": "./dist/testing/index.js",
+      "require": "./dist/testing/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsup",
+    "check": "npm run format:check && npm run typecheck && npm test && npm run build",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prepack": "npm run build",
+    "prepare": "npm run build",
+    "test": "vitest run --coverage",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "autofirmaCompatibility": {
+    "autoscript": "1.9",
+    "autofirma": ">=1.9"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^3.2.4",
+    "prettier": "^3.6.2",
+    "tsup": "^8.5.0",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
+  }
+}

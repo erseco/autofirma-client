@@ -1,0 +1,4 @@
+coverage
+dist
+package-lock.json
+docs/ejemplos/files/*.pdf
