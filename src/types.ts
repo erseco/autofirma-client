@@ -71,7 +71,6 @@ export interface AutoScriptApi {
     success: (certificate: string) => void,
     failure: NativeFailureCallback,
   ) => void;
-  needNativeAppInstalled?: (success: (installed: boolean) => void) => void;
   saveDataToFile?: (
     data: string,
     title: string,
@@ -81,7 +80,11 @@ export interface AutoScriptApi {
     success: () => void,
     failure: NativeFailureCallback,
   ) => void;
-  checkTime?: (checkType: string, maxMillis: number, checkUrl?: string) => void;
+  checkTime?: (
+    checkType: string,
+    maxMillis?: number,
+    checkUrl?: string,
+  ) => void;
 }
 
 /**
@@ -121,11 +124,11 @@ export interface SaveOptions {
 
 /**
  * Opciones de comprobación de hora. Los valores admitidos por AutoScript son
- * `CHECKTIME_NO`, `CHECKTIME_RECOMMENDED` y `CHECKTIME_OBLIGATORY`.
+ * `CT_NO`, `CT_RECOMMENDED` y `CT_OBLIGATORY`. Si no se indica `maxMillis`,
+ * AutoScript aplica su propio valor por defecto (300000 ms, 5 minutos).
  */
 export interface CheckTimeOptions {
-  readonly checkType?:
-    "CHECKTIME_NO" | "CHECKTIME_RECOMMENDED" | "CHECKTIME_OBLIGATORY";
+  readonly checkType?: "CT_NO" | "CT_RECOMMENDED" | "CT_OBLIGATORY";
   readonly maxMillis?: number;
   readonly checkUrl?: string;
 }
@@ -138,7 +141,6 @@ export interface SignatureClient {
   coSign(options: SignOptions): Promise<SignResult>;
   counterSign(options: SignOptions): Promise<SignResult>;
   selectCertificate(parameters?: ExtraParameters): Promise<CertificateResult>;
-  isNativeAppInstalled(): Promise<boolean>;
   saveDataToFile(options: SaveOptions): Promise<void>;
   checkTime(options?: CheckTimeOptions): Promise<void>;
 }

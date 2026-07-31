@@ -46,11 +46,6 @@ export class MockAutoFirmaClient implements SignatureClient {
   }
 
   public readonly saved: SaveOptions[] = [];
-  public installed = true;
-
-  public async isNativeAppInstalled(): Promise<boolean> {
-    return this.installed;
-  }
 
   public async saveDataToFile(options: SaveOptions): Promise<void> {
     this.saved.push(options);

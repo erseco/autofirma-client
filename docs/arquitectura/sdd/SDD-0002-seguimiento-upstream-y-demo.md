@@ -109,9 +109,20 @@ el mismo momento en el que hay que decidir el tag.
 
 ### Superficie de la librería
 
-Se añaden tres operaciones que ya existen en el AutoScript fijado:
-`needNativeAppInstalled`, `saveDataToFile` y `checkTime`. La firma por lotes
-queda fuera.
+Se añaden dos operaciones que ya existen en el AutoScript fijado:
+`saveDataToFile` y `checkTime`. La firma por lotes queda fuera.
+
+Se evaluó añadir también `needNativeAppInstalled`, pero el AutoScript fijado
+(1.9.0) la tiene deprecada y su implementación real siempre devuelve `true`
+de forma síncrona, sin aceptar callback: no informa de nada. Declararla en la
+API pública habría sido una afirmación de compatibilidad falsa, que
+`AGENTS.md` prohíbe expresamente. Se retira de `AutoScriptApi`,
+`SignatureClient`, `AutoFirmaClient` y `MockAutoFirmaClient`. Los valores
+reales de `checkType` en `checkTime` son también distintos de los asumidos
+inicialmente: `CT_NO`, `CT_RECOMMENDED` y `CT_OBLIGATORY` (no
+`CHECKTIME_NO`/`CHECKTIME_RECOMMENDED`/`CHECKTIME_OBLIGATORY`), y `maxMillis`
+se reenvía sin imponer un valor por defecto propio, porque AutoScript ya
+aplica el suyo (300000 ms) cuando no recibe ninguno.
 
 El AutoScript fijado (1.9.0) no expone `getErrorCode`, `getErrorCodeNumber`,
 `setServiceTimeout` ni `enableProgressDialog`, que aparecen en 1.10.1. La
@@ -124,9 +135,14 @@ construida a mano, con la demo arriba. El trabajo de Python desaparece del
 workflow de publicación. Los ADR y SDD se quedan como markdown en el
 repositorio, que GitHub ya renderiza.
 
-La demo detecta si AutoFirma está instalada, permite elegir un fichero y un
-formato, firma con el certificado que elija la persona usuaria y ofrece la
-descarga del resultado. Muestra además los datos del certificado firmante
+La demo no comprueba de antemano si AutoFirma está instalada —no hay ninguna
+operación fiable en el AutoScript fijado para eso, ver más arriba—: permite
+elegir un fichero y un formato desde el primer momento y, al pulsar firmar,
+delega en AutoFirma con el certificado que elija la persona usuaria y ofrece
+la descarga del resultado. Si AutoFirma no está instalada o no responde, es
+el propio AutoScript quien muestra su diálogo de error con enlace de
+descarga; la demo se limita a mostrar el mensaje de error resultante. Muestra
+además los datos del certificado firmante
 —titular, emisora, vigencia y número de serie— parseando en el navegador el
 X.509 que devuelve AutoScript. Ese parseo vive en la página, nunca en la
 librería.

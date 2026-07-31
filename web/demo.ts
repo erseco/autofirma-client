@@ -2,7 +2,6 @@ import { AutoFirmaClient, loadAutoScript } from "../src/index.js";
 import type { SignatureFormat } from "../src/index.js";
 import { readCertificate } from "./certificate.js";
 
-const status = document.querySelector<HTMLParagraphElement>("#status");
 const file = document.querySelector<HTMLInputElement>("#file");
 const format = document.querySelector<HTMLSelectElement>("#format");
 const signButton = document.querySelector<HTMLButtonElement>("#sign");
@@ -10,25 +9,15 @@ const result = document.querySelector<HTMLParagraphElement>("#result");
 const certificate = document.querySelector<HTMLDListElement>("#certificate");
 const download = document.querySelector<HTMLAnchorElement>("#download");
 
-if (
-  status &&
-  file &&
-  format &&
-  signButton &&
-  result &&
-  certificate &&
-  download
-) {
+if (file && format && signButton && result && certificate && download) {
   const autoScript = await loadAutoScript("autoscript.js");
   const client = new AutoFirmaClient({ autoScript });
   client.initialize();
 
-  const installed = await client.isNativeAppInstalled().catch(() => false);
-  status.textContent = installed
-    ? "AutoFirma detectada. Elige un fichero y fírmalo."
-    : "No se detecta AutoFirma. Instálala para poder firmar.";
-  signButton.disabled = !installed;
-
+  // No hay forma fiable de comprobar de antemano si AutoFirma está
+  // instalada: la operación que lo indicaba en AutoScript está deprecada y
+  // siempre devuelve `true`. Se intenta firmar directamente y, si AutoFirma
+  // no responde, se muestra el error que devuelva `sign()`.
   signButton.addEventListener("click", async () => {
     const selected = file.files?.[0];
     if (!selected) {

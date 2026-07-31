@@ -90,20 +90,6 @@ export class AutoFirmaClient implements SignatureClient {
   }
 
   /**
-   * Indica si AutoFirma está instalada en el equipo.
-   */
-  public isNativeAppInstalled(): Promise<boolean> {
-    const operation = this.autoScript.needNativeAppInstalled;
-    if (!operation) {
-      return this.unsupported("needNativeAppInstalled");
-    }
-
-    return new Promise((resolve) => {
-      operation((installed) => resolve(installed));
-    });
-  }
-
-  /**
    * Pide a AutoFirma que guarde datos en un fichero elegido por la persona
    * usuaria.
    */
@@ -127,7 +113,9 @@ export class AutoFirmaClient implements SignatureClient {
   }
 
   /**
-   * Comprueba la sincronía del reloj del equipo.
+   * Comprueba la sincronía del reloj del equipo. Si no se indica
+   * `maxMillis`, se reenvía tal cual: AutoScript aplica entonces su propio
+   * valor por defecto (300000 ms, 5 minutos) en vez de uno impuesto aquí.
    */
   public checkTime(options: CheckTimeOptions = {}): Promise<void> {
     const operation = this.autoScript.checkTime;
@@ -136,8 +124,8 @@ export class AutoFirmaClient implements SignatureClient {
     }
 
     operation(
-      options.checkType ?? "CHECKTIME_RECOMMENDED",
-      options.maxMillis ?? 60000,
+      options.checkType ?? "CT_RECOMMENDED",
+      options.maxMillis,
       options.checkUrl,
     );
     return Promise.resolve();

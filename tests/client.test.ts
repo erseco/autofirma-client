@@ -180,26 +180,6 @@ describe("utilidades", () => {
 });
 
 describe("operaciones auxiliares", () => {
-  it("consulta si AutoFirma está instalada", async () => {
-    const autoScript = {
-      sign: () => undefined,
-      needNativeAppInstalled: (success: (installed: boolean) => void) =>
-        success(true),
-    } as unknown as AutoScriptApi;
-
-    await expect(
-      new AutoFirmaClient({ autoScript }).isNativeAppInstalled(),
-    ).resolves.toBe(true);
-  });
-
-  it("rechaza consultar instalación cuando la versión fijada no expone la operación", async () => {
-    const autoScript = { sign: () => undefined } as unknown as AutoScriptApi;
-
-    await expect(
-      new AutoFirmaClient({ autoScript }).isNativeAppInstalled(),
-    ).rejects.toMatchObject({ code: "UNSUPPORTED_OPERATION" });
-  });
-
   it("guarda datos delegando en AutoScript", async () => {
     const calls: string[] = [];
     const autoScript = {
@@ -256,17 +236,17 @@ describe("operaciones auxiliares", () => {
     ).rejects.toMatchObject({ code: "UNSUPPORTED_OPERATION" });
   });
 
-  it("comprueba la hora con los valores por defecto", async () => {
+  it("comprueba la hora con los valores por defecto, sin imponer un maxMillis propio", async () => {
     const received: unknown[] = [];
     const autoScript = {
       sign: () => undefined,
-      checkTime: (checkType: string, maxMillis: number) => {
+      checkTime: (checkType: string, maxMillis?: number) => {
         received.push(checkType, maxMillis);
       },
     } as unknown as AutoScriptApi;
 
     await new AutoFirmaClient({ autoScript }).checkTime();
 
-    expect(received).toEqual(["CHECKTIME_RECOMMENDED", 60000]);
+    expect(received).toEqual(["CT_RECOMMENDED", undefined]);
   });
 });

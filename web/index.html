@@ -17,8 +17,9 @@
 
       <section id="demo">
         <h2>Pruébalo</h2>
-        <p id="status" aria-live="polite">
-          Comprobando si AutoFirma está instalada…
+        <p>
+          Firmar requiere tener AutoFirma instalada. Si no lo está, verás aquí
+          abajo el error que devuelva al intentarlo.
         </p>
 
         <div>
@@ -35,7 +36,7 @@
           </select>
         </div>
 
-        <button id="sign" type="button" disabled>Firmar</button>
+        <button id="sign" type="button">Firmar</button>
         <p id="result" aria-live="polite"></p>
         <dl id="certificate"></dl>
         <a id="download" hidden>Descargar la firma</a>
@@ -73,10 +74,6 @@
             <tr>
               <td><code>new AutoFirmaClient(options)</code></td>
               <td>Crea un cliente sobre el objeto AutoScript cargado.</td>
-            </tr>
-            <tr>
-              <td><code>client.isNativeAppInstalled()</code></td>
-              <td>Indica si AutoFirma está instalada en el equipo.</td>
             </tr>
             <tr>
               <td><code>client.sign({ data, format })</code></td>
