@@ -17,8 +17,7 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: 24
-      - id: check
-        run: node scripts/check-upstream.ts
+      - run: node scripts/check-upstream.ts
       # Nota para quien revise el pull request: nace sin comprobaciones porque
       # un push con el GITHUB_TOKEN por defecto no dispara los workflows. Hay
       # que lanzarlas a mano desde la pestaña Actions antes de mezclar.
@@ -28,6 +27,11 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           BRANCH="upstream/$(node -p "require('./autoscript.lock.json').tag")"
+          OPEN_PRS="$(gh pr list --head "${BRANCH}" --state open --json number --jq 'length')"
+          if [ "${OPEN_PRS}" != "0" ]; then
+            echo "Ya existe un pull request abierto para ${BRANCH}; no se crea otro."
+            exit 0
+          fi
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout -b "${BRANCH}"

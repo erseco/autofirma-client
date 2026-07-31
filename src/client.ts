@@ -113,9 +113,34 @@ export class AutoFirmaClient implements SignatureClient {
   }
 
   /**
-   * Comprueba la sincronía del reloj del equipo. Si no se indica
-   * `maxMillis`, se reenvía tal cual: AutoScript aplica entonces su propio
-   * valor por defecto (300000 ms, 5 minutos) en vez de uno impuesto aquí.
+   * Comprueba la sincronía del reloj del equipo contra un servidor.
+   *
+   * AutoScript lo implementa con una petición XHR **síncrona** que bloquea el
+   * hilo principal (`xhr.open('GET', url, false)`) hasta obtener respuesta.
+   * Si no se indica `checkUrl`, la petición se envía contra
+   * `document.URL + '/' + Math.random()`: una URL inventada contra el propio
+   * origen de la página, un acceso de red no documentado en ningún otro sitio
+   * y que este método no evita ni controla, pese a que esta librería no hace
+   * ningún acceso de red propio.
+   *
+   * El único efecto observable de un desfase es un `alert()` nativo; AutoScript
+   * captura y silencia cualquier error (por ejemplo, que la petición falle).
+   * Por eso la promesa devuelta nunca informa del resultado de la
+   * comprobación: se resuelve siempre que la operación exista, haya o no
+   * desfase y haya o no error de red.
+   *
+   * Con `checkType: "CT_OBLIGATORY"` y un desfase detectado, AutoScript marca
+   * un estado interno (`severeTimeDelay`) que hace que su función de carga
+   * (`cargarAppAfirma`, la que invoca `initialize()`) registre un aviso y
+   * retorne sin hacer nada la siguiente vez que se ejecute. El orden de
+   * llamadas importa y no está documentado: invocar
+   * `checkTime({ checkType: "CT_OBLIGATORY" })` antes de `initialize()` puede
+   * convertir `initialize()` en un no-op silencioso; invocarlo después de
+   * `initialize()` no afecta a una carga que ya se ha iniciado.
+   *
+   * Si no se indica `maxMillis`, se reenvía tal cual: AutoScript aplica
+   * entonces su propio valor por defecto (300000 ms, 5 minutos) en vez de uno
+   * impuesto aquí.
    */
   public checkTime(options: CheckTimeOptions = {}): Promise<void> {
     const operation = this.autoScript.checkTime;

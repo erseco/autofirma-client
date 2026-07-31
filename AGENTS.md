@@ -3,8 +3,11 @@
 ## Alcance del proyecto
 
 Este repositorio contiene un wrapper TypeScript fino sobre el objeto global
-oficial `AutoScript`. No reimplementa criptografía, no valida firmas y no
-redistribuye `autoscript.js`.
+oficial `AutoScript`. No reimplementa criptografía ni valida firmas. El propio
+repositorio git no contiene una copia de `autoscript.js`, pero el tarball de
+npm publicado sí la incluye, en `vendor/autoscript.js`, fijada y verificada
+por sha256 durante el empaquetado: ver
+[ADR-0005](docs/arquitectura/adr/ADR-0005-empaquetar-autoscript.md).
 
 ## Idioma y estilo
 

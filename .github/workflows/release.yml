@@ -39,7 +39,7 @@ jobs:
           tar -xzOf "${TARBALL}" package/vendor/autoscript.js | shasum -a 256 | cut -d" " -f1 > /tmp/packed.sha
           node -p "require('./autoscript.lock.json').sha256" > /tmp/pinned.sha
           diff /tmp/packed.sha /tmp/pinned.sha
-      - run: npm publish
+      - run: npm publish artifacts/*.tgz
       - name: Crear GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}

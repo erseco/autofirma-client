@@ -9,8 +9,12 @@ tipado estricto, conversión de datos, errores normalizados y dobles de prueba.
 
 ## Estado
 
-El proyecto está en una fase inicial. La línea `1.9.x` se desarrolla y prueba
-contra AutoScript `1.9` y requiere AutoFirma `1.9` o posterior. Consulta la
+El proyecto está en una fase inicial. La versión del paquete refleja el tag
+del repositorio oficial `ctt-gob-es/clienteafirma`, no una línea propia de
+AutoScript (ver [ADR-0004](docs/arquitectura/adr/ADR-0004-versionado-en-espejo.md)).
+La versión de AutoScript realmente empaquetada, y sus constantes, son las que
+registra `autoscript.lock.json`, la única fuente de verdad al respecto: hoy
+fija el tag `v1.9.2`, que corresponde a AutoScript `1.9.0`. Consulta la
 política de compatibilidad en
 [AGENTS.md](AGENTS.md#compatibilidad-y-versiones) antes de actualizar.
 
@@ -76,6 +80,35 @@ const client = new AutoFirmaClient({
 Estos servicios pertenecen al protocolo de transporte de AutoFirma. No son un
 repositorio documental.
 
+### Guardar ficheros y comprobar el reloj
+
+```ts
+await client.saveDataToFile({
+  data: base64Data,
+  title: "Guardar firma",
+  filename: "firma",
+  extension: "csig",
+  description: "Firma electrónica (*.csig)",
+});
+```
+
+`saveDataToFile` pide a AutoFirma que guarde datos en un fichero elegido por
+la persona usuaria; rechaza si la versión fijada de AutoScript no expone la
+operación.
+
+```ts
+await client.checkTime({ checkType: "CT_RECOMMENDED" });
+```
+
+`checkTime` no informa del resultado a través de la promesa que devuelve:
+AutoScript hace una petición **síncrona** que bloquea la página mientras
+espera respuesta y solo avisa de un desfase con un `alert()` nativo;
+cualquier error (incluido uno de red) se silencia. Con
+`checkType: "CT_OBLIGATORY"` puede además impedir en silencio que una llamada
+posterior a `initialize()` cargue AutoFirma, así que el orden de las llamadas
+importa. El docblock de `checkTime` en [`src/client.ts`](src/client.ts)
+documenta el detalle completo.
+
 ### Ficheros de ejemplo
 
 Para probar una integración local sin usar documentos reales:
@@ -119,6 +152,14 @@ make check
 La CI ejecuta formato, TypeScript, tests con cobertura y construcción en Node
 20, 22 y 24.
 
+> [!NOTE]
+> `prepack` (y por tanto `npm pack` y `npm publish`) ejecuta
+> `scripts/vendor-autoscript.ts` directamente con `node`, que necesita el
+> soporte nativo de tipos de Node ≥22.6. Es intencional: la librería en sí
+> es compatible con Node 20 (`engines.node`), pero los scripts de
+> mantenimiento no. Empaquetar con Node 20 falla con un error de sintaxis
+> poco claro; usa Node 22 o superior para generar el tarball o publicar.
+
 Los objetivos rápidos son:
 
 - `make lint`: comprueba Prettier y TypeScript.
@@ -129,9 +170,13 @@ Los objetivos rápidos son:
 
 ## Publicación
 
-Los tags `v1.9.x` ejecutan `.github/workflows/release.yml`, verifican que el tag
-coincida con `package.json`, repiten todos los controles, publican el paquete en
-npm y adjuntan el tarball a GitHub Releases.
+Cada tag `v*` ejecuta `.github/workflows/release.yml`: comprueba que el tag
+coincide con la versión de `package.json` y con el tag fijado en
+`autoscript.lock.json`, repite todos los controles, verifica que el tarball
+generado contiene `vendor/autoscript.js` con el `sha256` que registra el
+lock, publica en npm ese mismo tarball ya verificado (`npm publish
+artifacts/*.tgz`, sin volver a empaquetar) y lo adjunta también a GitHub
+Releases.
 
 La publicación usa **npm Trusted Publishing con OIDC**. Antes de la primera
 publicación hay que registrar en npm el repositorio `erseco/autofirma-client` y

@@ -99,7 +99,14 @@
             </tr>
             <tr>
               <td><code>client.checkTime(options)</code></td>
-              <td>Comprueba la sincronía del reloj del equipo.</td>
+              <td>
+                Comprueba la sincronía del reloj del equipo con una petición
+                síncrona que bloquea la página. Solo avisa de un desfase con un
+                <code>alert()</code> nativo: la promesa no informa del
+                resultado. Con <code>CT_OBLIGATORY</code> puede impedir en
+                silencio que una llamada posterior a
+                <code>initialize()</code> cargue AutoFirma.
+              </td>
             </tr>
             <tr>
               <td><code>readCertificate(derBase64)</code></td>
