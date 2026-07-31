@@ -4,14 +4,15 @@ Cliente TypeScript para usar la API oficial **AutoScript** con promesas,
 tipado estricto, conversión de datos, errores normalizados y dobles de prueba.
 
 > [!IMPORTANT]
-> Este proyecto no pertenece al Gobierno de España, no incluye AutoScript ni
-> AutoFirma y no sustituye la validación criptográfica en servidor.
+> Este proyecto no pertenece al Gobierno de España, no incluye AutoFirma y no
+> sustituye la validación criptográfica en servidor.
 
 ## Estado
 
 El proyecto está en una fase inicial. La línea `1.9.x` se desarrolla y prueba
 contra AutoScript `1.9` y requiere AutoFirma `1.9` o posterior. Consulta la
-[política de compatibilidad](docs/compatibilidad.md) antes de actualizar.
+política de compatibilidad en
+[AGENTS.md](AGENTS.md#compatibilidad-y-versiones) antes de actualizar.
 
 ## Instalación
 
@@ -19,15 +20,20 @@ contra AutoScript `1.9` y requiere AutoFirma `1.9` o posterior. Consulta la
 npm install @erseco/autofirma-client
 ```
 
-La aplicación debe cargar por separado el `autoscript.js` oficial:
+El paquete incluye una copia fijada y verificada por hash de `autoscript.js`
+en `vendor/autoscript.js`; no hace falta descargarla aparte. Ese fichero no es
+un módulo: es un script clásico que no declara UMD ni exporta nada, sino que
+confía en que su `var` de nivel superior se convierta en global. Por eso no
+puede importarse con un empaquetador y hay que insertarlo como etiqueta
+`<script>`. `loadAutoScript(url)` hace justo eso: sirve `vendor/autoscript.js`
+desde tu propia infraestructura estática y pásale esa URL.
 
-```html
-<script src="/vendor/autoscript-1.9.js"></script>
+```ts
+import { AutoFirmaClient, loadAutoScript } from "@erseco/autofirma-client";
+
+const autoScript = await loadAutoScript("/vendor/autoscript.js");
+const client = new AutoFirmaClient({ autoScript });
 ```
-
-El paquete no redistribuye ese fichero para evitar confundir la librería oficial
-con este wrapper y para que cada integración controle la versión y sus
-condiciones de distribución.
 
 ## Uso
 
@@ -107,8 +113,10 @@ el workflow `release.yml` como publicador de confianza.
 
 ## Documentación
 
-La documentación completa se publica con Zensical en
-<https://erseco.github.io/autofirma-client/>.
+Una página con una demo ejecutable se publica en
+<https://erseco.github.io/autofirma-client/>, generada con
+`npm run build:web` a partir de `web/`. Las decisiones de arquitectura (ADR y
+SDD) están en [`docs/arquitectura/`](docs/arquitectura/).
 
 ## Licencia
 
