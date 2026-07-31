@@ -80,12 +80,20 @@ certificado, la cadena de confianza y, cuando proceda, la revocación.
 ## Desarrollo
 
 ```bash
-npm ci
-npm run check
+make install
+make check
 ```
 
 La CI ejecuta formato, TypeScript, tests con cobertura y construcción en Node
 20, 22 y 24.
+
+Los objetivos rápidos son:
+
+- `make lint`: comprueba Prettier y TypeScript.
+- `make fix`: aplica Prettier.
+- `make test`: ejecuta Vitest con cobertura.
+- `make build`: genera ESM, CommonJS y tipos.
+- `make check`: ejecuta lint, tests y build.
 
 ## Publicación
 
