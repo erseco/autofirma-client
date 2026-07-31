@@ -49,6 +49,7 @@
   },
   "scripts": {
     "build": "tsup && tsc -p tsconfig.build.json",
+    "build:web": "npm run vendor && tsup --config tsup.web.config.ts && cp web/index.html web/styles.css vendor/autoscript.js site/",
     "check": "npm run format:check && npm run typecheck && npm test && npm run build",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

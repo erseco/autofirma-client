@@ -13,5 +13,13 @@
     "useUnknownInCatchVariables": true,
     "skipLibCheck": true
   },
-  "include": ["src", "tests", "scripts", "tsup.config.ts", "vitest.config.ts"]
+  "include": [
+    "src",
+    "tests",
+    "scripts",
+    "web",
+    "tsup.config.ts",
+    "tsup.web.config.ts",
+    "vitest.config.ts"
+  ]
 }

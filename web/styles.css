@@ -1,0 +1,121 @@
+:root {
+  color-scheme: light dark;
+  --fondo: #ffffff;
+  --texto: #1a1a1a;
+  --suave: #f4f4f5;
+  --borde: #d4d4d8;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fondo: #18181b;
+    --texto: #f4f4f5;
+    --suave: #27272a;
+    --borde: #3f3f46;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--fondo);
+  color: var(--texto);
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
+  line-height: 1.6;
+}
+
+main {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 3rem 1.25rem 6rem;
+}
+
+h1 {
+  font-size: 1.75rem;
+  margin-bottom: 0.25rem;
+}
+
+a {
+  color: inherit;
+}
+
+label {
+  font-weight: 600;
+}
+
+#demo {
+  background: var(--suave);
+  border: 1px solid var(--borde);
+  border-radius: 0.5rem;
+  padding: 1.25rem;
+}
+
+#demo div {
+  margin-bottom: 0.75rem;
+}
+
+#demo input,
+#demo select,
+#demo button {
+  font: inherit;
+  margin: 0.25rem 0.5rem 0.75rem 0;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--borde);
+  border-radius: 0.375rem;
+  background: var(--fondo);
+  color: inherit;
+}
+
+#demo button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.25rem 1rem;
+  margin: 0.75rem 0;
+}
+
+dt {
+  font-weight: 600;
+}
+
+dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+pre {
+  background: var(--suave);
+  border: 1px solid var(--borde);
+  border-radius: 0.375rem;
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  overflow-wrap: anywhere;
+}
+
+caption {
+  text-align: start;
+}
+
+th,
+td {
+  text-align: start;
+  vertical-align: top;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--borde);
+}
+
+th {
+  font-weight: 600;
+}

@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@erseco/autofirma-client</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main>
+      <h1>@erseco/autofirma-client</h1>
+      <p>
+        Cliente TypeScript sobre AutoScript, la API oficial de AutoFirma. Ni
+        reimplementa criptografía ni valida firmas: adapta la API oficial a
+        promesas tipadas.
+      </p>
+
+      <section id="demo">
+        <h2>Pruébalo</h2>
+        <p id="status" aria-live="polite">
+          Comprobando si AutoFirma está instalada…
+        </p>
+
+        <div>
+          <label for="file">Fichero a firmar</label><br />
+          <input type="file" id="file" />
+        </div>
+
+        <div>
+          <label for="format">Formato de firma</label><br />
+          <select id="format">
+            <option value="PAdES">PAdES (PDF)</option>
+            <option value="CAdES">CAdES</option>
+            <option value="XAdES">XAdES</option>
+          </select>
+        </div>
+
+        <button id="sign" type="button" disabled>Firmar</button>
+        <p id="result" aria-live="polite"></p>
+        <dl id="certificate"></dl>
+        <a id="download" hidden>Descargar la firma</a>
+
+        <p>
+          El fichero no sale de tu navegador: no hay ningún servidor detrás. Los
+          datos que se muestran son los del certificado que ha devuelto
+          AutoFirma, no una verificación de la firma: AutoScript no puede
+          validar firmas, cadenas de confianza ni revocación.
+        </p>
+      </section>
+
+      <section>
+        <h2>Instalación</h2>
+        <pre><code>npm install @erseco/autofirma-client</code></pre>
+      </section>
+
+      <section>
+        <h2>API</h2>
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Función</th>
+              <th scope="col">Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>loadAutoScript(url)</code></td>
+              <td>
+                Inserta <code>autoscript.js</code> como script clásico y
+                resuelve con el objeto global <code>AutoScript</code>.
+              </td>
+            </tr>
+            <tr>
+              <td><code>new AutoFirmaClient(options)</code></td>
+              <td>Crea un cliente sobre el objeto AutoScript cargado.</td>
+            </tr>
+            <tr>
+              <td><code>client.isNativeAppInstalled()</code></td>
+              <td>Indica si AutoFirma está instalada en el equipo.</td>
+            </tr>
+            <tr>
+              <td><code>client.sign({ data, format })</code></td>
+              <td>
+                Firma los datos en el formato indicado (PAdES, CAdES, XAdES o
+                FacturaE).
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <code>client.coSign(options)</code> /
+                <code>client.counterSign(options)</code>
+              </td>
+              <td>Cofirma o contrafirma cuando AutoScript lo expone.</td>
+            </tr>
+            <tr>
+              <td><code>client.selectCertificate()</code></td>
+              <td>Abre el selector de certificado sin firmar.</td>
+            </tr>
+            <tr>
+              <td><code>client.saveDataToFile(options)</code></td>
+              <td>Pide a AutoFirma que guarde datos en un fichero elegido.</td>
+            </tr>
+            <tr>
+              <td><code>client.checkTime(options)</code></td>
+              <td>Comprueba la sincronía del reloj del equipo.</td>
+            </tr>
+            <tr>
+              <td><code>readCertificate(derBase64)</code></td>
+              <td>
+                Extrae titular, emisora, número de serie y vigencia del
+                certificado devuelto por AutoFirma.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>Repositorio</h2>
+        <p>
+          Código fuente, incidencias y notas de compatibilidad en
+          <a href="https://github.com/erseco/autofirma-client"
+            >github.com/erseco/autofirma-client</a
+          >.
+        </p>
+      </section>
+
+      <script type="module" src="demo.js"></script>
+    </main>
+  </body>
+</html>
