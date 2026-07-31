@@ -192,6 +192,14 @@ describe("operaciones auxiliares", () => {
     ).resolves.toBe(true);
   });
 
+  it("rechaza consultar instalación cuando la versión fijada no expone la operación", async () => {
+    const autoScript = { sign: () => undefined } as unknown as AutoScriptApi;
+
+    await expect(
+      new AutoFirmaClient({ autoScript }).isNativeAppInstalled(),
+    ).rejects.toMatchObject({ code: "UNSUPPORTED_OPERATION" });
+  });
+
   it("guarda datos delegando en AutoScript", async () => {
     const calls: string[] = [];
     const autoScript = {
@@ -224,6 +232,20 @@ describe("operaciones auxiliares", () => {
       "csig",
       "Firma CAdES",
     ]);
+  });
+
+  it("rechaza guardar datos cuando la versión fijada no expone la operación", async () => {
+    const autoScript = { sign: () => undefined } as unknown as AutoScriptApi;
+
+    await expect(
+      new AutoFirmaClient({ autoScript }).saveDataToFile({
+        data: "ZGF0b3M=",
+        title: "Guardar firma",
+        filename: "firma.csig",
+        extension: "csig",
+        description: "Firma CAdES",
+      }),
+    ).rejects.toMatchObject({ code: "UNSUPPORTED_OPERATION" });
   });
 
   it("rechaza cuando la versión fijada no expone la operación", async () => {
