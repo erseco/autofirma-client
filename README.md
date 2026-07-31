@@ -61,6 +61,32 @@ const result = await client.sign({
 console.log(result.signature);
 ```
 
+Las cadenas se interpretan como Base64. Para datos sin codificar usa `File`,
+`Blob`, `ArrayBuffer` o `Uint8Array`.
+
+### Servicios intermedios
+
+```ts
+const client = new AutoFirmaClient({
+  storageUrl: "https://example.org/storage",
+  retrieveUrl: "https://example.org/retrieve",
+});
+```
+
+Estos servicios pertenecen al protocolo de transporte de AutoFirma. No son un
+repositorio documental.
+
+### Ficheros de ejemplo
+
+Para probar una integración local sin usar documentos reales:
+
+- [Texto para CAdES](docs/ejemplos/files/ejemplo.txt)
+- [XML para XAdES](docs/ejemplos/files/ejemplo.xml)
+- [PDF para PAdES](docs/ejemplos/files/ejemplo.pdf)
+
+Contienen datos ficticios. Una firma generada con ellos no demuestra que la
+integración valide certificados, cadenas de confianza o revocación.
+
 ## Qué aporta
 
 - API basada en `Promise`.
