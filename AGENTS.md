@@ -29,12 +29,33 @@ redistribuye `autoscript.js`.
 La librería debe seguir siendo una capa de adaptación. No añadas almacenamiento,
 REST, UI, validación criptográfica ni lógica específica de WordPress.
 
+## Integración con AutoScript
+
+Antes de envolver una operación de AutoScript, comprueba su firma real y el
+valor literal de sus constantes en `vendor/autoscript.js`, el fichero fijado
+por `autoscript.lock.json`. No los asumas por el nombre de la operación ni por
+el manual oficial: `needNativeAppInstalled` se wrapeó como asíncrona con
+callback y en realidad está deprecada, no acepta argumentos y devuelve `true`
+de forma síncrona, así que la promesa nunca resolvía contra el fichero real; y
+`checkTime` se llamó con `CHECKTIME_NO`/`CHECKTIME_RECOMMENDED`/
+`CHECKTIME_OBLIGATORY`, que no existen, en vez de los valores reales
+`CT_NO`/`CT_RECOMMENDED`/`CT_OBLIGATORY`.
+
+Un doble de prueba nunca debe definir el contrato. Ambos fallos tenían un test
+en verde porque el mock reproducía la forma asumida, no la real: la prueba
+validaba el defecto en vez de detectarlo. Antes de escribir el doble, lee la
+operación en `vendor/autoscript.js`.
+
 ## Compatibilidad y versiones
 
-- La versión `1.9.x` corresponde a la línea de compatibilidad AutoScript `1.9`.
-- El tercer componente versiona cambios del wrapper compatibles con esa línea.
-- Una nueva línea de AutoScript exige revisar el manual oficial, actualizar
-  pruebas y abrir la siguiente línea menor del paquete.
+- La versión del paquete es la del tag mayor del repositorio oficial
+  `ctt-gob-es/clienteafirma`, no la línea de AutoScript: ver ADR-0004.
+- El `autoscript.js` fijado y sus constantes (`VERSION`, `VERSION_CODE`,
+  `PROTOCOL_VERSION`) quedan registrados en `autoscript.lock.json`, la única
+  fuente de verdad sobre qué AutoScript corresponde a cada versión publicada.
+- Un workflow programado vigila el repositorio oficial y abre un pull request
+  cuando cambia el tag mayor; actualizar el lock y publicar sigue siendo una
+  decisión manual.
 - No declares compatibilidad que no tenga una prueba o referencia verificable.
 
 ## Pruebas y controles

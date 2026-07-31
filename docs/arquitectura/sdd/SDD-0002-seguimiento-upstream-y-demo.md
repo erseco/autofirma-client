@@ -1,7 +1,7 @@
 ---
 id: SDD-0002
 titulo: "Seguimiento del AutoScript oficial, empaquetado y demo pública"
-estado: Borrador
+estado: Implementado
 fecha: 2026-07-31
 adrs: [ADR-0004, ADR-0005, ADR-0006]
 asistencia_ia:

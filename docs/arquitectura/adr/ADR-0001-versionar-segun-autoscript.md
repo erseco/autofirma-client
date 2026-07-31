@@ -9,7 +9,7 @@ relacionados:
   sdds: [SDD-0001]
   adrs: []
 sustituye: []
-sustituido_por: []
+sustituido_por: [ADR-0004]
 asistencia_ia:
   herramienta: "Codex"
   modelo: "GPT-5"
