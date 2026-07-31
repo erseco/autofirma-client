@@ -71,6 +71,17 @@ export interface AutoScriptApi {
     success: (certificate: string) => void,
     failure: NativeFailureCallback,
   ) => void;
+  needNativeAppInstalled?: (success: (installed: boolean) => void) => void;
+  saveDataToFile?: (
+    data: string,
+    title: string,
+    filename: string,
+    extension: string,
+    description: string,
+    success: () => void,
+    failure: NativeFailureCallback,
+  ) => void;
+  checkTime?: (checkType: string, maxMillis: number, checkUrl?: string) => void;
 }
 
 /**
@@ -98,6 +109,28 @@ export type SignatureOperation = (
 ) => void;
 
 /**
+ * Opciones para guardar datos mediante AutoFirma.
+ */
+export interface SaveOptions {
+  readonly data: string;
+  readonly title: string;
+  readonly filename: string;
+  readonly extension: string;
+  readonly description: string;
+}
+
+/**
+ * Opciones de comprobación de hora. Los valores admitidos por AutoScript son
+ * `CHECKTIME_NO`, `CHECKTIME_RECOMMENDED` y `CHECKTIME_OBLIGATORY`.
+ */
+export interface CheckTimeOptions {
+  readonly checkType?:
+    "CHECKTIME_NO" | "CHECKTIME_RECOMMENDED" | "CHECKTIME_OBLIGATORY";
+  readonly maxMillis?: number;
+  readonly checkUrl?: string;
+}
+
+/**
  * Contrato desacoplado que facilita sustituir el cliente en pruebas.
  */
 export interface SignatureClient {
@@ -105,4 +138,7 @@ export interface SignatureClient {
   coSign(options: SignOptions): Promise<SignResult>;
   counterSign(options: SignOptions): Promise<SignResult>;
   selectCertificate(parameters?: ExtraParameters): Promise<CertificateResult>;
+  isNativeAppInstalled(): Promise<boolean>;
+  saveDataToFile(options: SaveOptions): Promise<void>;
+  checkTime(options?: CheckTimeOptions): Promise<void>;
 }

@@ -178,3 +178,73 @@ describe("utilidades", () => {
     expect(client.calls).toEqual([options, options, options]);
   });
 });
+
+describe("operaciones auxiliares", () => {
+  it("consulta si AutoFirma está instalada", async () => {
+    const autoScript = {
+      sign: () => undefined,
+      needNativeAppInstalled: (success: (installed: boolean) => void) =>
+        success(true),
+    } as unknown as AutoScriptApi;
+
+    await expect(
+      new AutoFirmaClient({ autoScript }).isNativeAppInstalled(),
+    ).resolves.toBe(true);
+  });
+
+  it("guarda datos delegando en AutoScript", async () => {
+    const calls: string[] = [];
+    const autoScript = {
+      sign: () => undefined,
+      saveDataToFile: (
+        data: string,
+        title: string,
+        filename: string,
+        extension: string,
+        description: string,
+        success: () => void,
+      ) => {
+        calls.push(data, title, filename, extension, description);
+        success();
+      },
+    } as unknown as AutoScriptApi;
+
+    await new AutoFirmaClient({ autoScript }).saveDataToFile({
+      data: "ZGF0b3M=",
+      title: "Guardar firma",
+      filename: "firma.csig",
+      extension: "csig",
+      description: "Firma CAdES",
+    });
+
+    expect(calls).toEqual([
+      "ZGF0b3M=",
+      "Guardar firma",
+      "firma.csig",
+      "csig",
+      "Firma CAdES",
+    ]);
+  });
+
+  it("rechaza cuando la versión fijada no expone la operación", async () => {
+    const autoScript = { sign: () => undefined } as unknown as AutoScriptApi;
+
+    await expect(
+      new AutoFirmaClient({ autoScript }).checkTime(),
+    ).rejects.toMatchObject({ code: "UNSUPPORTED_OPERATION" });
+  });
+
+  it("comprueba la hora con los valores por defecto", async () => {
+    const received: unknown[] = [];
+    const autoScript = {
+      sign: () => undefined,
+      checkTime: (checkType: string, maxMillis: number) => {
+        received.push(checkType, maxMillis);
+      },
+    } as unknown as AutoScriptApi;
+
+    await new AutoFirmaClient({ autoScript }).checkTime();
+
+    expect(received).toEqual(["CHECKTIME_RECOMMENDED", 60000]);
+  });
+});

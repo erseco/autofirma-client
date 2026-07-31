@@ -1,6 +1,8 @@
 import type {
   CertificateResult,
+  CheckTimeOptions,
   ExtraParameters,
+  SaveOptions,
   SignatureClient,
   SignOptions,
   SignResult,
@@ -41,5 +43,20 @@ export class MockAutoFirmaClient implements SignatureClient {
     _parameters: ExtraParameters = {},
   ): Promise<CertificateResult> {
     return { certificate: this.result.certificate ?? "mock-certificate" };
+  }
+
+  public readonly saved: SaveOptions[] = [];
+  public installed = true;
+
+  public async isNativeAppInstalled(): Promise<boolean> {
+    return this.installed;
+  }
+
+  public async saveDataToFile(options: SaveOptions): Promise<void> {
+    this.saved.push(options);
+  }
+
+  public async checkTime(_options: CheckTimeOptions = {}): Promise<void> {
+    return undefined;
   }
 }

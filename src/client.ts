@@ -9,7 +9,9 @@ import type {
   AutoFirmaClientOptions,
   AutoScriptApi,
   CertificateResult,
+  CheckTimeOptions,
   ExtraParameters,
+  SaveOptions,
   SignatureClient,
   SignatureOperation,
   SignOptions,
@@ -75,12 +77,7 @@ export class AutoFirmaClient implements SignatureClient {
     parameters: ExtraParameters = {},
   ): Promise<CertificateResult> {
     if (!this.autoScript.selectCertificate) {
-      return Promise.reject(
-        new AutoFirmaError(
-          "Esta versión de AutoScript no expone selectCertificate.",
-          "UNSUPPORTED_OPERATION",
-        ),
-      );
+      return this.unsupported("selectCertificate");
     }
 
     return new Promise((resolve, reject) => {
@@ -90,6 +87,60 @@ export class AutoFirmaClient implements SignatureClient {
         (type, message) => reject(fromNativeError(type, message)),
       );
     });
+  }
+
+  /**
+   * Indica si AutoFirma está instalada en el equipo.
+   */
+  public isNativeAppInstalled(): Promise<boolean> {
+    const operation = this.autoScript.needNativeAppInstalled;
+    if (!operation) {
+      return this.unsupported("needNativeAppInstalled");
+    }
+
+    return new Promise((resolve) => {
+      operation((installed) => resolve(installed));
+    });
+  }
+
+  /**
+   * Pide a AutoFirma que guarde datos en un fichero elegido por la persona
+   * usuaria.
+   */
+  public saveDataToFile(options: SaveOptions): Promise<void> {
+    const operation = this.autoScript.saveDataToFile;
+    if (!operation) {
+      return this.unsupported("saveDataToFile");
+    }
+
+    return new Promise((resolve, reject) => {
+      operation(
+        options.data,
+        options.title,
+        options.filename,
+        options.extension,
+        options.description,
+        () => resolve(),
+        (type, message) => reject(fromNativeError(type, message)),
+      );
+    });
+  }
+
+  /**
+   * Comprueba la sincronía del reloj del equipo.
+   */
+  public checkTime(options: CheckTimeOptions = {}): Promise<void> {
+    const operation = this.autoScript.checkTime;
+    if (!operation) {
+      return this.unsupported("checkTime");
+    }
+
+    operation(
+      options.checkType ?? "CHECKTIME_RECOMMENDED",
+      options.maxMillis ?? 60000,
+      options.checkUrl,
+    );
+    return Promise.resolve();
   }
 
   /**
@@ -108,15 +159,22 @@ export class AutoFirmaClient implements SignatureClient {
     options: SignOptions,
   ): Promise<SignResult> {
     if (!operation) {
-      return Promise.reject(
-        new AutoFirmaError(
-          `Esta versión de AutoScript no expone ${name}.`,
-          "UNSUPPORTED_OPERATION",
-        ),
-      );
+      return this.unsupported(name);
     }
 
     return this.execute(operation, options);
+  }
+
+  /**
+   * Rechazo homogéneo para operaciones ausentes en la versión fijada.
+   */
+  private unsupported<T>(name: string): Promise<T> {
+    return Promise.reject(
+      new AutoFirmaError(
+        `Esta versión de AutoScript no expone ${name}.`,
+        "UNSUPPORTED_OPERATION",
+      ),
+    );
   }
 
   /**
