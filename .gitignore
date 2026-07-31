@@ -4,3 +4,4 @@ node_modules/
 site/
 *.tgz
 .DS_Store
+.worktrees/
