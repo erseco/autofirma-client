@@ -40,17 +40,22 @@ jobs:
           tar -xzOf "${TARBALL}" package/vendor/autoscript.js | shasum -a 256 | cut -d" " -f1 > /tmp/packed.sha
           node -p "require('./autoscript.lock.json').sha256" > /tmp/pinned.sha
           diff /tmp/packed.sha /tmp/pinned.sha
-      - run: npm publish artifacts/*.tgz
-      # Se publica el mismo tarball ya verificado, no uno nuevo: repetir el
-      # empaquetado daría un fichero distinto del que se comprobó y del que se
-      # subió a npm. GitHub Packages no admite Trusted Publishing, así que aquí
-      # sí hace falta autenticarse, con el token efímero del propio workflow.
+      # En todos los pasos se publica el mismo tarball ya verificado, no uno
+      # nuevo: repetir el empaquetado daría un fichero distinto del que se
+      # comprobó. La ruta lleva `./` a propósito: sin él, npm interpreta
+      # `artifacts/x.tgz` como el atajo de GitHub `usuario/repo` e intenta
+      # clonarlo por git.
+      #
+      # GitHub Packages va primero porque se autentica con el token del propio
+      # workflow; npm exige tener registrado este fichero como publicador de
+      # confianza, y si eso falla no debe impedir el resto de la publicación.
       - name: Publicar en GitHub Packages
         env:
           NODE_AUTH_TOKEN: ${{ github.token }}
         run: |
           echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> ~/.npmrc
-          npm publish artifacts/*.tgz --registry=https://npm.pkg.github.com
+          npm publish ./artifacts/*.tgz --registry=https://npm.pkg.github.com
+      - run: npm publish ./artifacts/*.tgz
       - name: Crear GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
