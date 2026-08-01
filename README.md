@@ -172,6 +172,26 @@ make check
 La CI ejecuta formato, TypeScript, tests con cobertura y construcción en Node
 20, 22 y 24.
 
+### Symlinks en Windows
+
+Los procedimientos recurrentes del proyecto viven como skills en
+`.agents/skills/`, la ruta que leen Codex y Grok. Como Claude Code y GitHub
+Copilot buscan en `.claude/skills/` y `.github/skills/`, esos dos directorios
+contienen enlaces simbólicos a los mismos ficheros en vez de copias.
+
+Git guarda esos enlaces como tales, pero **en Windows solo los recrea al clonar
+si el soporte está activado**; de lo contrario aparecen como ficheros de texto
+que contienen la ruta de destino, y ni Claude Code ni Copilot encontrarán las
+skills. La copia real de `.agents/skills/` sigue funcionando en cualquier caso.
+
+```bash
+git config --global core.symlinks true
+```
+
+Hay que fijarlo **antes de clonar**: en un clon ya hecho no basta con activarlo,
+hay que volver a clonar o restaurar esas rutas. Además, Windows exige modo de
+desarrollador o privilegios de administrador para crear enlaces simbólicos.
+
 > [!NOTE]
 > `prepack` (y por tanto `npm pack` y `npm publish`) ejecuta
 > `scripts/vendor-autoscript.ts` directamente con `node`, que necesita el
