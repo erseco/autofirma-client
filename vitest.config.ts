@@ -7,11 +7,13 @@ export default defineConfig({
       reporter: ["text", "lcov"],
       include: ["src/**/*.ts"],
       exclude: ["src/types.ts"],
+      // El umbral acompaña a la cobertura real: si algo deja de estar
+      // cubierto, la construcción lo dice en vez de dejarlo pasar.
       thresholds: {
-        lines: 90,
-        functions: 90,
-        statements: 90,
-        branches: 85,
+        lines: 95,
+        functions: 95,
+        statements: 95,
+        branches: 95,
       },
     },
   },
