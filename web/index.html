@@ -36,6 +36,53 @@
           </select>
         </div>
 
+        <fieldset id="pades-options">
+          <legend>Firma visible en el PDF (solo PAdES)</legend>
+
+          <div>
+            <label for="visible">Qué mostrar</label><br />
+            <select id="visible">
+              <option value="none">Nada: firma no visible</option>
+              <option value="text">Texto compuesto por AutoFirma</option>
+              <option value="image">Imagen de rúbrica (JPEG)</option>
+            </select>
+          </div>
+
+          <div id="visible-text-row" hidden>
+            <label for="layer2">Plantilla del texto</label><br />
+            <input id="layer2" type="text" size="52" />
+            <p class="hint">
+              AutoFirma sustituye las claves por datos del certificado y de la
+              firma: <code>$$SUBJECTCN$$</code>, <code>$$ISSUERCN$$</code>,
+              <code>$$CERTSERIAL$$</code> y
+              <code>$$SIGNDATE=dd/MM/yyyy$$</code>, entre otras.
+            </p>
+          </div>
+
+          <div id="visible-image-row" hidden>
+            <label for="rubric">Imagen de la rúbrica</label><br />
+            <input type="file" id="rubric" accept="image/jpeg" />
+          </div>
+
+          <div>
+            <label>
+              <input type="checkbox" id="stamp" />
+              Estampar además una imagen en todas las páginas
+            </label>
+          </div>
+
+          <div id="stamp-image-row" hidden>
+            <label for="stamp-image">Imagen a estampar</label><br />
+            <input type="file" id="stamp-image" accept="image/jpeg" />
+            <p class="hint">
+              AutoFirma solo acepta JPEG, que no tiene transparencia: la imagen
+              se inserta como un recuadro opaco y tapa lo que haya debajo. Se
+              inserta antes de firmar, así que puede invalidar firmas previas
+              del documento.
+            </p>
+          </div>
+        </fieldset>
+
         <button id="sign" type="button">Firmar</button>
         <p id="result" aria-live="polite"></p>
         <dl id="certificate"></dl>

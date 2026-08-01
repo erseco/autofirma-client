@@ -2,8 +2,9 @@ import {
   AutoFirmaClient,
   AutoFirmaError,
   loadAutoScript,
+  toBase64,
 } from "../src/index.js";
-import type { SignatureFormat } from "../src/index.js";
+import type { ExtraParameters, SignatureFormat } from "../src/index.js";
 import { readCertificate } from "./certificate.js";
 
 /**
@@ -55,12 +56,61 @@ function signedFileName(originalName: string, format: SignatureFormat): string {
   return `${base}_signed.${extension}`;
 }
 
+/**
+ * Plantilla por defecto del texto de la firma visible. Las claves `$$…$$` las
+ * sustituye AutoFirma con datos del certificado y de la firma; el ejemplo de
+ * su propia documentación es «Firmado por $$SUBJECTCN$$ el día
+ * $$SIGNDATE=dd/MM/yyyy$$.».
+ */
+const DEFAULT_LAYER2_TEXT =
+  "Firmado por $$SUBJECTCN$$ el día $$SIGNDATE=dd/MM/yyyy HH:mm$$";
+
+/**
+ * Recuadro de la firma visible, en puntos PDF contados desde la esquina
+ * inferior izquierda. Estos valores sitúan la firma abajo a la izquierda de una
+ * página A4 (595 × 842 puntos).
+ */
+const SIGNATURE_BOX = { lowerX: 50, lowerY: 50, upperX: 300, upperY: 130 };
+
+/** Recuadro de la imagen estampada, centrado en una página A4. */
+const STAMP_BOX = { lowerX: 170, lowerY: 350, upperX: 425, upperY: 500 };
+
+/**
+ * Convierte una imagen a Base64 comprobando antes que sea JPEG.
+ *
+ * AutoFirma rechaza cualquier otro formato, y hacerlo aquí evita que el fallo
+ * aparezca como un error opaco de la aplicación nativa.
+ */
+async function toJpegBase64(image: File): Promise<string> {
+  if (image.type !== "image/jpeg") {
+    throw new AutoFirmaError(
+      `AutoFirma solo admite imágenes JPEG y «${image.name}» es ${image.type || "de tipo desconocido"}.`,
+      "UNSUPPORTED_IMAGE",
+    );
+  }
+
+  return toBase64(image);
+}
+
 const file = document.querySelector<HTMLInputElement>("#file");
 const format = document.querySelector<HTMLSelectElement>("#format");
 const signButton = document.querySelector<HTMLButtonElement>("#sign");
 const result = document.querySelector<HTMLParagraphElement>("#result");
 const certificate = document.querySelector<HTMLDListElement>("#certificate");
 const download = document.querySelector<HTMLAnchorElement>("#download");
+const padesOptions =
+  document.querySelector<HTMLFieldSetElement>("#pades-options");
+const visible = document.querySelector<HTMLSelectElement>("#visible");
+const visibleTextRow =
+  document.querySelector<HTMLDivElement>("#visible-text-row");
+const layer2 = document.querySelector<HTMLInputElement>("#layer2");
+const visibleImageRow =
+  document.querySelector<HTMLDivElement>("#visible-image-row");
+const rubric = document.querySelector<HTMLInputElement>("#rubric");
+const stamp = document.querySelector<HTMLInputElement>("#stamp");
+const stampImageRow =
+  document.querySelector<HTMLDivElement>("#stamp-image-row");
+const stampImage = document.querySelector<HTMLInputElement>("#stamp-image");
 
 void main();
 
@@ -71,12 +121,101 @@ void main();
  * ningún mensaje para quien la visita.
  */
 async function main(): Promise<void> {
-  if (!file || !format || !signButton || !result || !certificate || !download) {
+  if (
+    !file ||
+    !format ||
+    !signButton ||
+    !result ||
+    !certificate ||
+    !download ||
+    !padesOptions ||
+    !visible ||
+    !visibleTextRow ||
+    !layer2 ||
+    !visibleImageRow ||
+    !rubric ||
+    !stamp ||
+    !stampImageRow ||
+    !stampImage
+  ) {
     console.error(
-      "Faltan elementos del DOM que la demo necesita: #file, #format, #sign, #result, #certificate o #download.",
+      "Faltan elementos del DOM que la demo necesita: #file, #format, #sign, #result, #certificate, #download, #pades-options, #visible, #visible-text-row, #layer2, #visible-image-row, #rubric, #stamp, #stamp-image-row o #stamp-image.",
     );
     return;
   }
+
+  layer2.value = DEFAULT_LAYER2_TEXT;
+
+  /** Muestra solo los controles que aplican al formato y a la opción elegidos. */
+  const syncOptions = (): void => {
+    padesOptions.hidden = format.value !== "PAdES";
+    visibleTextRow.hidden = visible.value !== "text";
+    visibleImageRow.hidden = visible.value !== "image";
+    stampImageRow.hidden = !stamp.checked;
+  };
+
+  format.addEventListener("change", syncOptions);
+  visible.addEventListener("change", syncOptions);
+  stamp.addEventListener("change", syncOptions);
+  syncOptions();
+
+  /**
+   * Construye los `extraParams` de la firma visible.
+   *
+   * `layer2Text` y `signatureRubricImage` se excluyen entre sí: AutoFirma
+   * ignora el texto si se le ha dado una imagen de rúbrica, así que la interfaz
+   * ofrece uno u otro y nunca ambos.
+   */
+  const buildParameters = async (): Promise<ExtraParameters> => {
+    if (format.value !== "PAdES") {
+      return {};
+    }
+
+    const parameters: Record<string, string | number> = {};
+
+    if (visible.value !== "none") {
+      parameters["signaturePage"] = 1;
+      parameters["signaturePositionOnPageLowerLeftX"] = SIGNATURE_BOX.lowerX;
+      parameters["signaturePositionOnPageLowerLeftY"] = SIGNATURE_BOX.lowerY;
+      parameters["signaturePositionOnPageUpperRightX"] = SIGNATURE_BOX.upperX;
+      parameters["signaturePositionOnPageUpperRightY"] = SIGNATURE_BOX.upperY;
+    }
+
+    if (visible.value === "text") {
+      parameters["layer2Text"] = layer2.value || DEFAULT_LAYER2_TEXT;
+      parameters["layer2FontSize"] = 10;
+    }
+
+    if (visible.value === "image") {
+      const chosen = rubric.files?.[0];
+      if (!chosen) {
+        throw new AutoFirmaError(
+          "Elige la imagen JPEG de la rúbrica.",
+          "MISSING_IMAGE",
+        );
+      }
+      parameters["signatureRubricImage"] = await toJpegBase64(chosen);
+    }
+
+    if (stamp.checked) {
+      const chosen = stampImage.files?.[0];
+      if (!chosen) {
+        throw new AutoFirmaError(
+          "Elige la imagen JPEG que quieres estampar.",
+          "MISSING_IMAGE",
+        );
+      }
+      parameters["image"] = await toJpegBase64(chosen);
+      // 0 estampa la imagen en todas las páginas; -1 solo en la última.
+      parameters["imagePage"] = 0;
+      parameters["imagePositionOnPageLowerLeftX"] = STAMP_BOX.lowerX;
+      parameters["imagePositionOnPageLowerLeftY"] = STAMP_BOX.lowerY;
+      parameters["imagePositionOnPageUpperRightX"] = STAMP_BOX.upperX;
+      parameters["imagePositionOnPageUpperRightY"] = STAMP_BOX.upperY;
+    }
+
+    return parameters;
+  };
 
   let autoScript;
   try {
@@ -113,6 +252,7 @@ async function main(): Promise<void> {
       const signature = await client.sign({
         data: selected,
         format: selectedFormat,
+        parameters: await buildParameters(),
       });
 
       result.textContent = `Firma generada: ${signature.signature.length} caracteres en base64.`;
