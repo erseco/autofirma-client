@@ -1,5 +1,9 @@
 # AutoFirma Client
 
+[![CI](https://github.com/erseco/autofirma-client/actions/workflows/ci.yml/badge.svg)](https://github.com/erseco/autofirma-client/actions/workflows/ci.yml)
+[![Codecov](https://codecov.io/gh/erseco/autofirma-client/graph/badge.svg)](https://codecov.io/gh/erseco/autofirma-client)
+[![License](https://img.shields.io/github/license/erseco/autofirma-client)](LICENSE)
+
 Cliente TypeScript para usar la API oficial **AutoScript** con promesas,
 tipado estricto, conversión de datos, errores normalizados y dobles de prueba.
 
