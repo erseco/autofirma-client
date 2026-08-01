@@ -34,6 +34,13 @@
         <div>
           <label for="file">Fichero a firmar</label><br />
           <input type="file" id="file" />
+          <p class="hint">
+            No hay un tamaño máximo declarado: el fichero viaja entero a
+            AutoFirma en una sola pieza, codificado en Base64, lo que lo hace un
+            tercio más grande por el camino. El límite real es la memoria de la
+            aplicación, y al superarla devuelve un error que esta página
+            identifica como fichero demasiado grande.
+          </p>
         </div>
 
         <div>

@@ -120,6 +120,26 @@ Para probar una integración local sin usar documentos reales:
 Contienen datos ficticios. Una firma generada con ellos no demuestra que la
 integración valide certificados, cadenas de confianza o revocación.
 
+## Errores
+
+Todo fallo llega como `AutoFirmaError`, que conserva intactos `nativeType` y
+`nativeMessage` tal y como los devolvió AutoFirma. El campo `code` clasifica los
+casos sobre los que se puede actuar:
+
+| `code`                   | Cuándo                                                                 |
+| ------------------------ | ---------------------------------------------------------------------- |
+| `USER_CANCELLED`         | La persona usuaria canceló la operación o la selección de certificado. |
+| `DATA_TOO_LARGE`         | El fichero excede la memoria disponible de AutoFirma.                  |
+| `NATIVE_TIMEOUT`         | AutoFirma no respondió: no está instalada o no llegó a abrirse.        |
+| `NATIVE_ERROR`           | Cualquier otro fallo de AutoFirma, incluidos sus códigos `SAF_xx`.     |
+| `UNSUPPORTED_OPERATION`  | La versión fijada de AutoScript no expone esa operación.               |
+| `AUTOSCRIPT_UNAVAILABLE` | No hay objeto global `AutoScript` en la página.                        |
+
+No existe un tamaño máximo declarado en ninguna parte. El fichero viaja entero
+en una sola pieza codificado en Base64, que lo agranda un tercio, y el límite
+real es la memoria de la aplicación nativa: al superarla responde `MEMORY_ERROR`
+y el cliente lo entrega como `DATA_TOO_LARGE`.
+
 ## Qué aporta
 
 - API basada en `Promise`.
