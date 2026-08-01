@@ -1,6 +1,29 @@
-import { AutoFirmaClient, loadAutoScript } from "../src/index.js";
+import {
+  AutoFirmaClient,
+  AutoFirmaError,
+  loadAutoScript,
+} from "../src/index.js";
 import type { SignatureFormat } from "../src/index.js";
 import { readCertificate } from "./certificate.js";
+
+/**
+ * Describe un fallo conservando el detalle que devolvió AutoFirma.
+ *
+ * El mensaje normalizado del cliente dice que la operación no se completó,
+ * pero no por qué. AutoScript sí lo dice —con códigos como `SAF_xx` o el tipo
+ * de excepción nativa— y esa es justo la información que distingue un
+ * certificado que no sirve para firmar de un fallo de comunicación.
+ */
+function describeError(error: unknown): string {
+  if (error instanceof AutoFirmaError) {
+    const detail = [error.nativeType, error.nativeMessage]
+      .filter((value): value is string => Boolean(value))
+      .join(": ");
+    return detail ? `${error.message} (${detail})` : error.message;
+  }
+
+  return error instanceof Error ? error.message : "No se pudo firmar.";
+}
 
 /** Extensión de fichero que corresponde al resultado de cada formato de firma. */
 const EXTENSION_BY_FORMAT: Record<SignatureFormat, string> = {
@@ -98,8 +121,7 @@ async function main(): Promise<void> {
       download.download = `${selected.name}.${extension}`;
       download.hidden = false;
     } catch (error) {
-      result.textContent =
-        error instanceof Error ? error.message : "No se pudo firmar.";
+      result.textContent = describeError(error);
     } finally {
       signButton.disabled = false;
     }
