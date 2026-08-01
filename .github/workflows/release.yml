@@ -53,7 +53,9 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ github.token }}
         run: |
-          echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> ~/.npmrc
+          # setup-node apunta npm a un .npmrc temporal vía NPM_CONFIG_USERCONFIG,
+          # así que escribir en ~/.npmrc no tiene ningún efecto.
+          echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> "${NPM_CONFIG_USERCONFIG:-${HOME}/.npmrc}"
           npm publish ./artifacts/*.tgz --registry=https://npm.pkg.github.com
       - run: npm publish ./artifacts/*.tgz
       - name: Crear GitHub Release

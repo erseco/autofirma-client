@@ -73,7 +73,9 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ github.token }}
         run: |
-          echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> ~/.npmrc
+          # setup-node apunta npm a un .npmrc temporal vía NPM_CONFIG_USERCONFIG,
+          # así que escribir en ~/.npmrc no tiene ningún efecto.
+          echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> "${NPM_CONFIG_USERCONFIG:-${HOME}/.npmrc}"
           npm publish ./artifacts/*.tgz --tag canary --registry=https://npm.pkg.github.com
       # `--tag canary` es lo que impide que estas versiones lleguen a quien
       # instala sin pedirlas: `latest` queda reservado a los tags de release.
