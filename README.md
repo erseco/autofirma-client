@@ -177,13 +177,26 @@ Cada tag `v*` ejecuta `.github/workflows/release.yml`: comprueba que el tag
 coincide con la versión de `package.json` y con el tag fijado en
 `autoscript.lock.json`, repite todos los controles, verifica que el tarball
 generado contiene `vendor/autoscript.js` con el `sha256` que registra el
-lock, publica en npm ese mismo tarball ya verificado (`npm publish
-artifacts/*.tgz`, sin volver a empaquetar) y lo adjunta también a GitHub
-Releases.
+lock y publica ese mismo tarball ya verificado (`npm publish artifacts/*.tgz`,
+sin volver a empaquetar) en tres sitios: el registro público de npm, el gestor
+de paquetes de GitHub y GitHub Releases.
 
-La publicación usa **npm Trusted Publishing con OIDC**. Antes de la primera
-publicación hay que registrar en npm el repositorio `erseco/autofirma-client` y
-el workflow `release.yml` como publicador de confianza.
+La publicación en npm usa **npm Trusted Publishing con OIDC**, sin tokens. Antes
+de la primera publicación hay que registrar en npm el repositorio
+`erseco/autofirma-client` y el workflow `release.yml` como publicador de
+confianza.
+
+GitHub Packages no admite Trusted Publishing, así que ese paso se autentica con
+el `GITHUB_TOKEN` efímero del propio workflow y necesita el permiso
+`packages: write`. Para instalar desde ahí hay que apuntar el ámbito `@erseco`
+a ese registro y autenticarse, porque incluso los paquetes públicos de GitHub
+Packages exigen credenciales para descargarse:
+
+```
+@erseco:registry=https://npm.pkg.github.com
+```
+
+Quien no quiera ese paso adicional tiene el paquete en npm sin autenticación.
 
 ## Documentación
 
