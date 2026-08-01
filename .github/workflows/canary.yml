@@ -88,7 +88,13 @@ jobs:
         run: |
           # setup-node apunta npm a un .npmrc temporal vía NPM_CONFIG_USERCONFIG,
           # así que escribir en ~/.npmrc no tiene ningún efecto.
-          echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> "${NPM_CONFIG_USERCONFIG:-${HOME}/.npmrc}"
+          RC="${NPM_CONFIG_USERCONFIG:-${HOME}/.npmrc}"
+          echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> "${RC}"
+          echo "--- ${RC} después de añadir la línea ---"
+          sed -E 's/(_authToken=).*/\1<oculto>/' "${RC}"
+          echo "--- npm resuelve la credencial? ---"
+          npm config get //npm.pkg.github.com/:_authToken > /tmp/probe 2>&1 || true
+          if grep -q "undefined" /tmp/probe; then echo "  NO: npm no ve el token"; else echo "  SÍ: npm ve un token de ${#NODE_AUTH_TOKEN} caracteres"; fi
           npm publish ./artifacts/*.tgz --tag canary --registry=https://npm.pkg.github.com
       # `--tag canary` es lo que impide que estas versiones lleguen a quien
       # instala sin pedirlas: `latest` queda reservado a los tags de release.
