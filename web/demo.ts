@@ -33,6 +33,28 @@ const EXTENSION_BY_FORMAT: Record<SignatureFormat, string> = {
   FacturaE: "xsig",
 };
 
+/**
+ * Nombre del fichero firmado que se ofrece descargar.
+ *
+ * PAdES devuelve el mismo documento con la firma incrustada, así que conserva
+ * la extensión del original: un PDF firmado sigue siendo un PDF. CAdES y XAdES
+ * no devuelven el documento sino un contenedor de firma con formato propio, y
+ * heredar ahí la extensión original haría creer que el fichero descargado es
+ * el documento cuando no lo es.
+ */
+function signedFileName(originalName: string, format: SignatureFormat): string {
+  const separator = originalName.lastIndexOf(".");
+  const base = separator > 0 ? originalName.slice(0, separator) : originalName;
+  const originalExtension =
+    separator > 0 ? originalName.slice(separator + 1) : "";
+  const extension =
+    format === "PAdES" && originalExtension
+      ? originalExtension
+      : EXTENSION_BY_FORMAT[format];
+
+  return `${base}_signed.${extension}`;
+}
+
 const file = document.querySelector<HTMLInputElement>("#file");
 const format = document.querySelector<HTMLSelectElement>("#format");
 const signButton = document.querySelector<HTMLButtonElement>("#sign");
@@ -116,9 +138,8 @@ async function main(): Promise<void> {
         }
       }
 
-      const extension = EXTENSION_BY_FORMAT[selectedFormat];
       download.href = `data:application/octet-stream;base64,${signature.signature}`;
-      download.download = `${selected.name}.${extension}`;
+      download.download = signedFileName(selected.name, selectedFormat);
       download.hidden = false;
     } catch (error) {
       result.textContent = describeError(error);
