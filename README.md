@@ -39,6 +39,32 @@ const autoScript = await loadAutoScript("/vendor/autoscript.js");
 const client = new AutoFirmaClient({ autoScript });
 ```
 
+### Si lo sirves desde otro origen
+
+El paquete fija `autoscript.js` por sha256 (ver
+[ADR-0005](docs/arquitectura/adr/ADR-0005-empaquetar-autoscript.md)), pero esa
+garantía termina donde empieza la red: si lo sirves desde un CDN o un dominio de
+estáticos, quien controle ese origen controla el fichero. `loadAutoScript`
+acepta los atributos de Subresource Integrity para recuperarla.
+
+```ts
+const autoScript = await loadAutoScript(
+  "https://cdn.example.org/autoscript.js",
+  {
+    integrity: "sha256-…",
+    crossOrigin: "anonymous",
+  },
+);
+```
+
+`autoscript.lock.json` guarda la huella en hexadecimal y SRI la quiere en base64
+con prefijo `sha256-`:
+
+```bash
+printf 'sha256-%s\n' "$(node -p "require('./autoscript.lock.json').sha256" \
+  | xxd -r -p | base64)"
+```
+
 ## Uso
 
 ```ts
@@ -133,7 +159,7 @@ casos sobre los que se puede actuar:
 | `NATIVE_TIMEOUT`         | AutoFirma no respondió: no está instalada o no llegó a abrirse.        |
 | `NATIVE_ERROR`           | Cualquier otro fallo de AutoFirma, incluidos sus códigos `SAF_xx`.     |
 | `UNSUPPORTED_OPERATION`  | La versión fijada de AutoScript no expone esa operación.               |
-| `AUTOSCRIPT_UNAVAILABLE` | No hay objeto global `AutoScript` en la página.                        |
+| `AUTOSCRIPT_UNAVAILABLE` | `window.AutoScript` no existe o no es la API de AutoScript.            |
 
 No existe un tamaño máximo declarado en ninguna parte. El fichero viaja entero
 en una sola pieza codificado en Base64, que lo agranda un tercio, y el límite
