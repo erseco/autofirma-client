@@ -103,6 +103,10 @@ Al añadir una skill, crea el directorio en `.agents/skills/` y enlázalo desde
 las otras dos. No dupliques el `SKILL.md`: dos copias divergen y quien lea una
 de ellas seguirá instrucciones caducadas.
 
+`security-audit` es de terceros —copiada de `ateeducacion/wp-decker`— y está
+excluida de Prettier: reformatearla divergiría de su origen y complicaría
+actualizarla. El resto son propias de este repositorio.
+
 ## Documentación de arquitectura
 
 Consulta `docs/arquitectura/adr/records.md` y

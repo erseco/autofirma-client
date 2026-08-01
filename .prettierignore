@@ -2,3 +2,7 @@ coverage
 dist
 package-lock.json
 docs/ejemplos/files/*.pdf
+
+# Skill de terceros: se copia tal cual de su origen y reformatearla divergiría
+# del upstream, complicando cualquier actualización futura.
+.agents/skills/security-audit
