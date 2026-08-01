@@ -8,3 +8,4 @@
 | [ADR-0004](ADR-0004-versionado-en-espejo.md)       | Versión en espejo del tag de AutoFirma            | Aceptado | 2026-07-31 |
 | [ADR-0005](ADR-0005-empaquetar-autoscript.md)      | Empaquetar AutoScript en el tarball               | Aceptado | 2026-07-31 |
 | [ADR-0006](ADR-0006-web-de-pagina-unica.md)        | Web de página única sin generador                 | Aceptado | 2026-07-31 |
+| [ADR-0007](ADR-0007-canal-canary.md)               | Publicar cada push a main en el canal canary      | Aceptado | 2026-08-01 |

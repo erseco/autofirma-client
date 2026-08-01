@@ -183,8 +183,34 @@ de paquetes de GitHub y GitHub Releases.
 
 La publicación en npm usa **npm Trusted Publishing con OIDC**, sin tokens. Antes
 de la primera publicación hay que registrar en npm el repositorio
-`erseco/autofirma-client` y el workflow `release.yml` como publicador de
-confianza.
+`erseco/autofirma-client` y los workflows `release.yml` y `canary.yml` como
+publicadores de confianza.
+
+### Canal canary
+
+Cada push a `main` que pueda cambiar el paquete ejecuta
+`.github/workflows/canary.yml`, que repite los mismos controles y la misma
+verificación del tarball y publica bajo el dist-tag **`canary`**:
+
+```bash
+npm install @erseco/autofirma-client@canary
+```
+
+La versión se calcula sobre el **patch siguiente** al de `package.json`, no
+sobre el actual: una preversión ordena por debajo de su versión, así que
+`1.9.2-canary.x` quedaría por detrás de la `1.9.2` ya publicada pese a contener
+más código. Con `1.9.3-canary.<sello>.<sha>` ordena por encima de `1.9.2`, por
+debajo de un futuro `1.9.3`, y no ocupa ese número.
+
+`latest` queda reservado a los tags de release, y un rango como `^1.9.2` no
+acepta preversiones, así que quien instale de la forma habitual nunca recibirá
+un canary sin pedirlo. Este canal es además la única vía para publicar
+correcciones del wrapper entre dos tags de AutoFirma, que ADR-0004 registró como
+la contrapartida del versionado en espejo.
+
+Mientras no exista ninguna versión estable publicada, `npm install
+@erseco/autofirma-client` sin sufijo no resuelve, porque no hay dist-tag
+`latest`: hasta el primer tag hay que instalar con `@canary`.
 
 GitHub Packages no admite Trusted Publishing, así que ese paso se autentica con
 el `GITHUB_TOKEN` efímero del propio workflow y necesita el permiso
