@@ -39,6 +39,11 @@
         <fieldset id="pades-options">
           <legend>Firma visible en el PDF (solo PAdES)</legend>
 
+          <p class="hint">
+            Una firma electrónica es válida sin verse. Esto solo decide si
+            además se dibuja algo en el PDF que anuncie que está firmado.
+          </p>
+
           <div>
             <label for="visible">Qué mostrar</label><br />
             <select id="visible">
@@ -46,6 +51,19 @@
               <option value="text">Texto compuesto por AutoFirma</option>
               <option value="image">Imagen de rúbrica (JPEG)</option>
             </select>
+            <p class="hint">
+              <strong>Nada</strong>: el PDF se firma pero no cambia de aspecto.
+              <br />
+              <strong>Texto</strong>: AutoFirma dibuja un recuadro y escribe
+              dentro un texto que compone él con los datos de tu certificado y
+              la fecha real de la firma. No tienes que preparar nada.<br />
+              <strong>Imagen de rúbrica</strong>: ese mismo recuadro, pero con
+              una imagen tuya en lugar del texto — una firma manuscrita
+              escaneada, un sello, un logotipo. Se llama rúbrica porque
+              representa tu firma, y va ligada a la firma electrónica: quien
+              abra el PDF puede pinchar en ella y ver el certificado. Texto e
+              imagen son excluyentes: si das imagen, AutoFirma ignora el texto.
+            </p>
           </div>
 
           <div id="visible-text-row" hidden>
@@ -69,6 +87,11 @@
               <input type="checkbox" id="stamp" />
               Estampar además una imagen en todas las páginas
             </label>
+            <p class="hint">
+              Distinto de la rúbrica: esto no representa tu firma ni va ligado a
+              ella, es una imagen pegada en el documento, en todas sus páginas.
+              Es lo más parecido a una marca de agua que permite AutoFirma.
+            </p>
           </div>
 
           <div id="stamp-image-row" hidden>
