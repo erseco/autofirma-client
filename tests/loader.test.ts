@@ -5,6 +5,8 @@ import type { AutoScriptApi } from "../src/types.js";
 interface FakeScript {
   src: string;
   async: boolean;
+  integrity?: string;
+  crossOrigin?: string;
   onload?: () => void;
   onerror?: () => void;
 }
@@ -96,6 +98,44 @@ describe("loadAutoScript", () => {
     await expect(
       loadAutoScript("/autoscript.js", { document }),
     ).rejects.toThrow(/no es la API/i);
+  });
+
+  it("aplica integrity y crossOrigin al script insertado", async () => {
+    globalThis.window = { AutoScript: undefined } as unknown as Window &
+      typeof globalThis;
+    let inserted: FakeScript | undefined;
+    const document = fakeDocument((script) => {
+      inserted = script;
+      globalThis.window.AutoScript = api;
+      script.onload?.();
+    });
+
+    await loadAutoScript("/autoscript.js", {
+      document,
+      integrity: "sha256-XZ0i1oCYRfr0zdGgpvhWMhBmzcW0hEOL/6dLKrM2QDk=",
+      crossOrigin: "anonymous",
+    });
+
+    expect(inserted).toMatchObject({
+      integrity: "sha256-XZ0i1oCYRfr0zdGgpvhWMhBmzcW0hEOL/6dLKrM2QDk=",
+      crossOrigin: "anonymous",
+    });
+  });
+
+  it("no fija integrity ni crossOrigin cuando no se piden", async () => {
+    globalThis.window = { AutoScript: undefined } as unknown as Window &
+      typeof globalThis;
+    let inserted: FakeScript | undefined;
+    const document = fakeDocument((script) => {
+      inserted = script;
+      globalThis.window.AutoScript = api;
+      script.onload?.();
+    });
+
+    await loadAutoScript("/autoscript.js", { document });
+
+    expect(inserted?.integrity).toBeUndefined();
+    expect(inserted?.crossOrigin).toBeUndefined();
   });
 
   it("rechaza cuando no hay ningún documento disponible", async () => {
