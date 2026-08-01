@@ -69,32 +69,17 @@ jobs:
       #
       # La ruta lleva `./` a propósito: sin él, npm interpreta `artifacts/x.tgz`
       # como el atajo de GitHub `usuario/repo` e intenta clonarlo por git.
-      - name: Diagnóstico de la autenticación
-        env:
-          NODE_AUTH_TOKEN: ${{ github.token }}
-        run: |
-          RC="${NPM_CONFIG_USERCONFIG:-${HOME}/.npmrc}"
-          echo "NPM_CONFIG_USERCONFIG = ${NPM_CONFIG_USERCONFIG:-<sin definir>}"
-          echo "longitud del token    = ${#NODE_AUTH_TOKEN}"
-          echo "fichero de config     = ${RC}"
-          echo "--- contenido, con los valores ocultos ---"
-          if [ -f "${RC}" ]; then sed 's/=.*/=<oculto>/' "${RC}"; else echo "(no existe)"; fi
-          echo "--- lo que npm dice estar usando ---"
-          npm config get registry
-          npm config get userconfig
       - name: Publicar en GitHub Packages
         env:
           NODE_AUTH_TOKEN: ${{ github.token }}
         run: |
           # setup-node apunta npm a un .npmrc temporal vía NPM_CONFIG_USERCONFIG,
           # así que escribir en ~/.npmrc no tiene ningún efecto.
-          RC="${NPM_CONFIG_USERCONFIG:-${HOME}/.npmrc}"
-          echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> "${RC}"
-          echo "--- ${RC} después de añadir la línea ---"
-          sed -E 's/(_authToken=).*/\1<oculto>/' "${RC}"
-          echo "--- npm resuelve la credencial? ---"
-          npm config get //npm.pkg.github.com/:_authToken > /tmp/probe 2>&1 || true
-          if grep -q "undefined" /tmp/probe; then echo "  NO: npm no ve el token"; else echo "  SÍ: npm ve un token de ${#NODE_AUTH_TOKEN} caracteres"; fi
+          # El salto de línea inicial no es cosmético: el .npmrc que genera
+          # setup-node no termina en salto, así que un append pegado a la
+          # última línea produce `registry=https://registry.npmjs.org///npm.pkg…`
+          # y npm se queda sin registro válido y sin credencial.
+          printf '\n//npm.pkg.github.com/:_authToken=%s\n' "${NODE_AUTH_TOKEN}" >> "${NPM_CONFIG_USERCONFIG:-${HOME}/.npmrc}"
           npm publish ./artifacts/*.tgz --tag canary --registry=https://npm.pkg.github.com
       # `--tag canary` es lo que impide que estas versiones lleguen a quien
       # instala sin pedirlas: `latest` queda reservado a los tags de release.
