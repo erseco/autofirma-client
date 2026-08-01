@@ -111,6 +111,21 @@ const stamp = document.querySelector<HTMLInputElement>("#stamp");
 const stampImageRow =
   document.querySelector<HTMLDivElement>("#stamp-image-row");
 const stampImage = document.querySelector<HTMLInputElement>("#stamp-image");
+const mobileNotice =
+  document.querySelector<HTMLParagraphElement>("#mobile-notice");
+
+/**
+ * Indica si el navegador es de un móvil, donde esta demo no puede firmar.
+ *
+ * En Android e iOS, AutoScript no se comunica con la aplicación por un socket
+ * local sino a través de un servidor intermedio, y busca sus dos servicios en
+ * el origen de la página. Una página estática no puede ofrecerlos, así que el
+ * intento termina en un diálogo de AutoScript que además llega sin texto.
+ * Avisar antes evita ese callejón sin salida.
+ */
+function isMobile(): boolean {
+  return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
 
 void main();
 
@@ -136,11 +151,18 @@ async function main(): Promise<void> {
     !rubric ||
     !stamp ||
     !stampImageRow ||
-    !stampImage
+    !stampImage ||
+    !mobileNotice
   ) {
     console.error(
       "Faltan elementos del DOM que la demo necesita: #file, #format, #sign, #result, #certificate, #download, #pades-options, #visible, #visible-text-row, #layer2, #visible-image-row, #rubric, #stamp, #stamp-image-row o #stamp-image.",
     );
+    return;
+  }
+
+  if (isMobile()) {
+    mobileNotice.hidden = false;
+    signButton.disabled = true;
     return;
   }
 
