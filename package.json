@@ -68,11 +68,11 @@
     "autofirma": ">=1.9"
   },
   "devDependencies": {
-    "@types/node": "^20.19.43",
-    "@vitest/coverage-v8": "^3.2.4",
+    "@types/node": "^26.1.2",
+    "@vitest/coverage-v8": "^4.1.10",
     "prettier": "^3.6.2",
     "tsup": "^8.5.0",
-    "typescript": "^5.8.3",
-    "vitest": "^3.2.4"
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.10"
   }
 }
