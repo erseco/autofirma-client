@@ -69,6 +69,19 @@ jobs:
       #
       # La ruta lleva `./` a propósito: sin él, npm interpreta `artifacts/x.tgz`
       # como el atajo de GitHub `usuario/repo` e intenta clonarlo por git.
+      - name: Diagnóstico de la autenticación
+        env:
+          NODE_AUTH_TOKEN: ${{ github.token }}
+        run: |
+          RC="${NPM_CONFIG_USERCONFIG:-${HOME}/.npmrc}"
+          echo "NPM_CONFIG_USERCONFIG = ${NPM_CONFIG_USERCONFIG:-<sin definir>}"
+          echo "longitud del token    = ${#NODE_AUTH_TOKEN}"
+          echo "fichero de config     = ${RC}"
+          echo "--- contenido, con los valores ocultos ---"
+          if [ -f "${RC}" ]; then sed 's/=.*/=<oculto>/' "${RC}"; else echo "(no existe)"; fi
+          echo "--- lo que npm dice estar usando ---"
+          npm config get registry
+          npm config get userconfig
       - name: Publicar en GitHub Packages
         env:
           NODE_AUTH_TOKEN: ${{ github.token }}
