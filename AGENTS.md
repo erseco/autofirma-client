@@ -86,6 +86,23 @@ serialización de parámetros.
   GitHub con el tarball.
 - No añadas tokens npm al repositorio ni al workflow.
 
+## Skills
+
+Los procedimientos recurrentes viven como skills en `.agents/skills/`, que es la
+ruta que leen Codex y Grok Build. Claude Code y GitHub Copilot buscan en sitios
+distintos, así que `.claude/skills/` y `.github/skills/` contienen **enlaces
+simbólicos** a esos mismos directorios, no copias:
+
+| Herramienta    | Ruta que lee      |
+| -------------- | ----------------- |
+| Codex, Grok    | `.agents/skills/` |
+| Claude Code    | `.claude/skills/` |
+| GitHub Copilot | `.github/skills/` |
+
+Al añadir una skill, crea el directorio en `.agents/skills/` y enlázalo desde
+las otras dos. No dupliques el `SKILL.md`: dos copias divergen y quien lea una
+de ellas seguirá instrucciones caducadas.
+
 ## Documentación de arquitectura
 
 Consulta `docs/arquitectura/adr/records.md` y
