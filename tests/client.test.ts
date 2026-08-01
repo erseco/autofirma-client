@@ -141,6 +141,21 @@ describe("utilidades", () => {
     expect(() => new AutoFirmaClient()).toThrow(AutoScriptUnavailableError);
   });
 
+  it("no acepta un global que no sea la API de AutoScript", () => {
+    // `<a id="AutoScript">` define `window.AutoScript` sin ejecutar ningún
+    // script. Aceptarlo dejaba el cliente con un elemento en vez de la API y
+    // la firma fallaba mucho después con un TypeError sin `code`.
+    globalThis.window = {
+      AutoScript: { tagName: "A" },
+    } as unknown as Window & typeof globalThis;
+
+    try {
+      expect(() => new AutoFirmaClient()).toThrow(AutoScriptUnavailableError);
+    } finally {
+      delete (globalThis as { window?: unknown }).window;
+    }
+  });
+
   it("distingue errores nativos no cancelados", async () => {
     const client = new AutoFirmaClient({
       autoScript: {

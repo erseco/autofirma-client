@@ -133,7 +133,7 @@ casos sobre los que se puede actuar:
 | `NATIVE_TIMEOUT`         | AutoFirma no respondió: no está instalada o no llegó a abrirse.        |
 | `NATIVE_ERROR`           | Cualquier otro fallo de AutoFirma, incluidos sus códigos `SAF_xx`.     |
 | `UNSUPPORTED_OPERATION`  | La versión fijada de AutoScript no expone esa operación.               |
-| `AUTOSCRIPT_UNAVAILABLE` | No hay objeto global `AutoScript` en la página.                        |
+| `AUTOSCRIPT_UNAVAILABLE` | `window.AutoScript` no existe o no es la API de AutoScript.            |
 
 No existe un tamaño máximo declarado en ninguna parte. El fichero viaja entero
 en una sola pieza codificado en Base64, que lo agranda un tercio, y el límite

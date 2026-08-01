@@ -8,6 +8,31 @@ declare global {
 }
 
 /**
+ * Comprueba que un candidato sea la API de AutoScript y no cualquier otra cosa
+ * que ocupe el mismo nombre global.
+ *
+ * `window.AutoScript` no requiere ejecutar JavaScript para existir: un elemento
+ * con `id="AutoScript"` o `name="AutoScript"` lo define solo (DOM clobbering),
+ * y los saneadores de HTML habituales permiten `id`. Comprobar únicamente que
+ * el global sea *truthy* aceptaba ese elemento como si fuera la API: la firma
+ * no fallaba al construir el cliente sino mucho después, con un `TypeError`
+ * sin `code` al invocar una operación inexistente.
+ *
+ * `sign` es la única operación que AutoScript garantiza en todas sus versiones
+ * —el resto son opcionales en `AutoScriptApi`—, así que es lo mínimo que puede
+ * exigirse sin rechazar versiones legítimas.
+ */
+export function isAutoScriptApi(
+  candidate: unknown,
+): candidate is AutoScriptApi {
+  return (
+    typeof candidate === "object" &&
+    candidate !== null &&
+    typeof (candidate as AutoScriptApi).sign === "function"
+  );
+}
+
+/**
  * Resuelve la API inyectada o el objeto global oficial.
  */
 export function resolveAutoScript(injected?: AutoScriptApi): AutoScriptApi {
@@ -15,7 +40,7 @@ export function resolveAutoScript(injected?: AutoScriptApi): AutoScriptApi {
     return injected;
   }
 
-  if (typeof window !== "undefined" && window.AutoScript) {
+  if (typeof window !== "undefined" && isAutoScriptApi(window.AutoScript)) {
     return window.AutoScript;
   }
 

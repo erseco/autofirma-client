@@ -1,3 +1,4 @@
+import { isAutoScriptApi } from "./autoscript-adapter.js";
 import { AutoFirmaError } from "./errors.js";
 import type { AutoScriptApi } from "./types.js";
 
@@ -21,7 +22,7 @@ export function loadAutoScript(
   options: LoadOptions = {},
 ): Promise<AutoScriptApi> {
   const existing = globalThis.window?.AutoScript;
-  if (existing) {
+  if (isAutoScriptApi(existing)) {
     return Promise.resolve(existing);
   }
 
@@ -41,13 +42,13 @@ export function loadAutoScript(
     script.async = true;
     script.onload = () => {
       const loaded = globalThis.window?.AutoScript;
-      if (loaded) {
+      if (isAutoScriptApi(loaded)) {
         resolve(loaded);
         return;
       }
       reject(
         new AutoFirmaError(
-          `${url} se cargó pero no definió el objeto global AutoScript.`,
+          `${url} se cargó pero window.AutoScript no es la API de AutoScript.`,
           "AUTOSCRIPT_UNAVAILABLE",
         ),
       );
