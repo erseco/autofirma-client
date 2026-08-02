@@ -209,8 +209,10 @@ async function main(): Promise<void> {
     }
 
     if (visible.value === "text") {
+      // Solo se manda el texto: la tipografía, el tamaño y el color se dejan a
+      // AutoFirma, que aplica los suyos. Fijar uno aquí haría que el sello
+      // saliera distinto al de la aplicación de escritorio sin motivo.
       parameters["layer2Text"] = layer2.value || DEFAULT_LAYER2_TEXT;
-      parameters["layer2FontSize"] = 10;
     }
 
     if (visible.value === "image") {
