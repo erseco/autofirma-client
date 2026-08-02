@@ -54,10 +54,10 @@ git push origin v<versión>
 
 ## 5. Seguir el workflow
 
-`release.yml` publica **el mismo tarball verificado** en tres destinos, en este orden:
+`publish.yml` publica **el mismo tarball verificado** en tres destinos, en este orden:
 
 1. **GitHub Packages** — se autentica con el token del propio workflow, así que no depende de nada configurado fuera.
-2. **npm** — usa Trusted Publishing con OIDC. Exige tener registrado `release.yml` como publicador de confianza del paquete; si no, falla con un 404 al hacer `PUT` sobre el registro.
+2. **npm** — usa Trusted Publishing con OIDC. Exige tener registrado `publish.yml` como publicador de confianza del paquete; si no, falla con un 404 al hacer `PUT` sobre el registro.
 3. **GitHub Releases** — adjunta el tarball con notas generadas.
 
 ```bash

@@ -82,8 +82,9 @@ serialización de parámetros.
 
 - No modifiques una release publicada.
 - El tag debe ser `v` seguido exactamente de la versión de `package.json`.
-- `release.yml` publica en npm mediante Trusted Publishing y crea el release de
-  GitHub con el tarball.
+- `publish.yml` publica los dos canales: un tag `v*` bajo `latest` y con release
+  de GitHub, y un push a `main` bajo `canary`. Van en el mismo fichero porque npm
+  admite un solo publicador de confianza por paquete (ADR-0008).
 - No añadas tokens npm al repositorio ni al workflow.
 
 ## Skills

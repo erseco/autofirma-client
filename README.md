@@ -243,7 +243,7 @@ Los objetivos rápidos son:
 
 ## Publicación
 
-Cada tag `v*` ejecuta `.github/workflows/release.yml`: comprueba que el tag
+Cada tag `v*` ejecuta `.github/workflows/publish.yml`: comprueba que el tag
 coincide con la versión de `package.json` y con el tag fijado en
 `autoscript.lock.json`, repite todos los controles, verifica que el tarball
 generado contiene `vendor/autoscript.js` con el `sha256` que registra el
@@ -251,36 +251,34 @@ lock y publica ese mismo tarball ya verificado (`npm publish artifacts/*.tgz`,
 sin volver a empaquetar) en tres sitios: el registro público de npm, el gestor
 de paquetes de GitHub y GitHub Releases.
 
-La publicación en npm usa **npm Trusted Publishing con OIDC**, sin tokens. Antes
-de la primera publicación hay que registrar en npm el repositorio
-`erseco/autofirma-client` y los workflows `release.yml` y `canary.yml` como
-publicadores de confianza.
+La publicación en npm usa **npm Trusted Publishing con OIDC**, sin tokens. En
+los ajustes del paquete hay que registrar como publicador de confianza el
+repositorio `erseco/autofirma-client`, el fichero `publish.yml` y el entorno
+`npm`. Un paquete admite **un solo publicador**, y por eso release y canary
+comparten workflow: en ficheros distintos, uno de los dos fallaría siempre.
+
+Ese mismo límite impide que OIDC cree un paquete que no existe todavía, así que
+la primera publicación de un paquete nuevo tiene que hacerse a mano.
 
 ### Canal canary
 
-Cada push a `main` que pueda cambiar el paquete ejecuta
-`.github/workflows/canary.yml`, que repite los mismos controles y la misma
-verificación del tarball y publica bajo el dist-tag **`canary`**:
+Cada push a `main` publica una preversión bajo el dist-tag **`canary`**:
 
 ```bash
 npm install @erseco/autofirma-client@canary
 ```
 
-La versión se calcula sobre el **patch siguiente** al de `package.json`, no
-sobre el actual: una preversión ordena por debajo de su versión, así que
-`1.9.2-canary.x` quedaría por detrás de la `1.9.2` ya publicada pese a contener
-más código. Con `1.9.3-canary.<sello>.<sha>` ordena por encima de `1.9.2`, por
-debajo de un futuro `1.9.3`, y no ocupa ese número.
-
-`latest` queda reservado a los tags de release, y un rango como `^1.9.2` no
-acepta preversiones, así que quien instale de la forma habitual nunca recibirá
-un canary sin pedirlo. Este canal es además la única vía para publicar
+Su número parte del **patch siguiente** al de `package.json`, no del actual: una
+preversión ordena por debajo de su versión, de modo que sobre el patch actual
+ocuparía el hueco de la que está por salir. Es además la única vía para publicar
 correcciones del wrapper entre dos tags de AutoFirma, que ADR-0004 registró como
-la contrapartida del versionado en espejo.
+contrapartida del versionado en espejo.
 
-Mientras no exista ninguna versión estable publicada, `npm install
-@erseco/autofirma-client` sin sufijo no resuelve, porque no hay dist-tag
-`latest`: hasta el primer tag hay que instalar con `@canary`.
+> **Todavía no hay ninguna versión estable en npm.** Mientras siga así, `latest`
+> apunta a una canary y `npm install @erseco/autofirma-client` sin sufijo
+> entrega una preversión. Al publicarse la primera estable, `latest` pasará a
+> ella y los rangos habituales dejarán de resolver preversiones, porque un rango
+> como `^1.10.1` no las acepta.
 
 GitHub Packages no admite Trusted Publishing, así que ese paso se autentica con
 el `GITHUB_TOKEN` efímero del propio workflow y necesita el permiso
