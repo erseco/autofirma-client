@@ -62,8 +62,13 @@ function signedFileName(originalName: string, format: SignatureFormat): string {
  * su propia documentación es «Firmado por $$SUBJECTCN$$ el día
  * $$SIGNDATE=dd/MM/yyyy$$.».
  */
+/**
+ * El mismo texto que AutoFirma trae por omisión, tomado de `pdfLayer2Text` en
+ * el `preferences.properties` del repositorio oficial: así el sello sale igual
+ * que firmando con la aplicación de escritorio.
+ */
 const DEFAULT_LAYER2_TEXT =
-  "Firmado por $$SUBJECTCN$$ el día $$SIGNDATE=dd/MM/yyyy HH:mm$$";
+  "Firmado por $$SUBJECTCN$$ el día $$SIGNDATE=dd/MM/yyyy$$ con un certificado emitido por $$ISSUERCN$$";
 
 /**
  * Recuadro de la firma visible, en puntos PDF contados desde la esquina
