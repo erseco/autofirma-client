@@ -35,7 +35,7 @@ jobs:
       # publica una sola vez en lugar de una por cada entrada de la matriz.
       - name: Publicar en Codecov
         if: matrix.node == 24
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           use_oidc: true
           files: ./coverage/lcov.info
