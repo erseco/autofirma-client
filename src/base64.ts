@@ -25,6 +25,24 @@ export async function toBase64(data: SignableData): Promise<string> {
 }
 
 /**
+ * Decodifica una cadena Base64 estándar a bytes sin depender de Node.js.
+ */
+export function fromBase64(data: string): Uint8Array {
+  if (typeof atob !== "function") {
+    throw new Error("El entorno no proporciona una función Base64 compatible.");
+  }
+
+  const binary = atob(data);
+  const bytes = new Uint8Array(binary.length);
+
+  for (let index = 0; index < binary.length; index += 1) {
+    bytes[index] = binary.charCodeAt(index);
+  }
+
+  return bytes;
+}
+
+/**
  * Codifica bytes sin depender de Node.js, para conservar compatibilidad con
  * navegadores.
  */
