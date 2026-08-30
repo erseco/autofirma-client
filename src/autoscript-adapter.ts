@@ -37,9 +37,7 @@ export function isAutoScriptApi(
  * superficie mínima esperada.
  */
 export function isAutoScriptAvailable(): boolean {
-  return (
-    typeof window !== "undefined" && isAutoScriptApi(window.AutoScript)
-  );
+  return typeof window !== "undefined" && isAutoScriptApi(window.AutoScript);
 }
 
 /**
