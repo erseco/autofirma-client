@@ -33,6 +33,14 @@ export function isAutoScriptApi(
 }
 
 /**
+ * Indica si el objeto global oficial de AutoScript está disponible y tiene la
+ * superficie mínima esperada.
+ */
+export function isAutoScriptAvailable(): boolean {
+  return typeof window !== "undefined" && isAutoScriptApi(window.AutoScript);
+}
+
+/**
  * Resuelve la API inyectada o el objeto global oficial.
  */
 export function resolveAutoScript(injected?: AutoScriptApi): AutoScriptApi {

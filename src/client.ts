@@ -29,6 +29,14 @@ export class AutoFirmaClient implements SignatureClient {
   public constructor(options: AutoFirmaClientOptions = {}) {
     this.autoScript = resolveAutoScript(options.autoScript);
 
+    if (options.appName && this.autoScript.setAppName) {
+      this.autoScript.setAppName(options.appName);
+    }
+
+    if (options.locale && this.autoScript.setLocale) {
+      this.autoScript.setLocale(options.locale);
+    }
+
     if (
       options.storageUrl &&
       options.retrieveUrl &&

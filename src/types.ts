@@ -55,6 +55,8 @@ export interface AutoFirmaClientOptions {
   readonly autoScript?: AutoScriptApi;
   readonly storageUrl?: string;
   readonly retrieveUrl?: string;
+  readonly appName?: string;
+  readonly locale?: string;
 }
 
 /**
@@ -63,6 +65,8 @@ export interface AutoFirmaClientOptions {
 export interface AutoScriptApi {
   cargarAppAfirma?: () => void;
   setServlets?: (storageUrl: string, retrieveUrl: string) => void;
+  setAppName?: (name: string) => void;
+  setLocale?: (locale: string) => void;
   sign: SignatureOperation;
   coSign?: SignatureOperation;
   counterSign?: SignatureOperation;

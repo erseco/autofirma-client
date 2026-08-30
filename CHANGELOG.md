@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## Sin publicar
+
+### Añadido
+
+- `fromBase64` convierte resultados Base64 a `Uint8Array` sin depender de Node.js
+- `isAutoScriptAvailable` permite comprobar de forma segura si el bridge global de AutoScript está cargado
+- `AutoFirmaClientOptions` acepta `appName` y `locale`, que se reenvían a AutoScript cuando la versión utilizada expone `setAppName` y `setLocale`
+- Documentación específica de las ayudas de integración y de sus límites
+
 ## v1.9.2 – 2026-08-01
 
 Primera versión publicada.
