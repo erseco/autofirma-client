@@ -1,5 +1,14 @@
-import { AutoScriptUnavailableError, fromNativeError } from "./errors.js";
-import type { AutoScriptApi, SignatureOperation, SignResult } from "./types.js";
+import {
+  AutoFirmaError,
+  AutoScriptUnavailableError,
+  fromNativeError,
+} from "./errors.js";
+import type {
+  BatchDocumentResult,
+  AutoScriptApi,
+  SignatureOperation,
+  SignResult,
+} from "./types.js";
 
 declare global {
   interface Window {
@@ -75,4 +84,37 @@ export function invokeSignatureOperation(
       },
     );
   });
+}
+
+/** Comprueba el contrato de JSONBatchManager y la correspondencia con el lote. */
+export function readBatchResults(
+  data: unknown,
+  ids: ReadonlySet<string>,
+): readonly BatchDocumentResult[] {
+  const signs = (data as { signs?: unknown } | null)?.signs;
+  const remaining = new Set(ids);
+  if (!Array.isArray(signs) || signs.length !== ids.size) {
+    throw new AutoFirmaError(
+      "Invalid batch response",
+      "INVALID_BATCH_RESPONSE",
+    );
+  }
+  for (const item of signs) {
+    if (
+      !item ||
+      typeof item.id !== "string" ||
+      !remaining.delete(item.id) ||
+      typeof item.result !== "string" ||
+      (item.description !== undefined &&
+        typeof item.description !== "string") ||
+      (item.signature !== undefined && typeof item.signature !== "string") ||
+      (item.result === "DONE_AND_SAVED" && !item.signature)
+    ) {
+      throw new AutoFirmaError(
+        "Invalid batch document result",
+        "INVALID_BATCH_RESPONSE",
+      );
+    }
+  }
+  return signs;
 }

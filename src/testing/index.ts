@@ -6,6 +6,8 @@ import type {
   SignatureClient,
   SignOptions,
   SignResult,
+  SignBatchOptions,
+  SignBatchResult,
 } from "../types.js";
 
 /**
@@ -27,6 +29,22 @@ export class MockAutoFirmaClient implements SignatureClient {
   public async sign(options: SignOptions): Promise<SignResult> {
     this.calls.push(options);
     return this.result;
+  }
+
+  public readonly batchCalls: SignBatchOptions[] = [];
+
+  public async signBatch(options: SignBatchOptions): Promise<SignBatchResult> {
+    this.batchCalls.push(options);
+    return {
+      signs: options.documents.map(({ id }) => ({
+        id,
+        result: "DONE_AND_SAVED",
+        signature: this.result.signature,
+      })),
+      ...(this.result.certificate
+        ? { certificate: this.result.certificate }
+        : {}),
+    };
   }
 
   public async coSign(options: SignOptions): Promise<SignResult> {

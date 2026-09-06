@@ -5,6 +5,9 @@ export { AutoFirmaError, AutoScriptUnavailableError } from "./errors.js";
 export { serializeParameters } from "./parameters.js";
 export { toBase64 } from "./base64.js";
 export type {
+  BatchDocumentResult,
+  SignBatchOptions,
+  SignBatchResult,
   AutoFirmaClientOptions,
   AutoScriptApi,
   CertificateResult,
