@@ -6,6 +6,9 @@ export { isAutoScriptAvailable } from "./autoscript-adapter.js";
 export { serializeParameters } from "./parameters.js";
 export { fromBase64, toBase64 } from "./base64.js";
 export type {
+  BatchDocumentResult,
+  SignBatchOptions,
+  SignBatchResult,
   AutoFirmaClientOptions,
   AutoScriptApi,
   CertificateResult,

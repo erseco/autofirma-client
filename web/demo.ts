@@ -265,7 +265,8 @@ async function main(): Promise<void> {
   // siempre devuelve `true`. Se intenta firmar directamente y, si AutoFirma
   // no responde, se muestra el error que devuelva `sign()`.
   signButton.addEventListener("click", async () => {
-    const selected = file.files?.[0];
+    const selectedFiles = Array.from(file.files ?? []);
+    const selected = selectedFiles[0];
     if (!selected) {
       result.textContent = "Elige un fichero primero.";
       return;
@@ -278,6 +279,43 @@ async function main(): Promise<void> {
 
     try {
       const selectedFormat = format.value as SignatureFormat;
+      if (selectedFiles.length > 1) {
+        if (
+          selectedFormat !== "PAdES" ||
+          selectedFiles.some(
+            (item) => !item.name.toLowerCase().endsWith(".pdf"),
+          )
+        ) {
+          throw new Error(
+            "Para firmar varios ficheros, selecciona solo PDF y el formato PAdES.",
+          );
+        }
+        const batch = await client.signBatch({
+          documents: selectedFiles.map((data, index) => ({
+            id: String(index),
+            data,
+          })),
+          format: "PAdES",
+          parameters: await buildParameters(),
+        });
+        result.replaceChildren();
+        for (const item of batch.signs) {
+          const original = selectedFiles[Number(item.id)]!;
+          const row = document.createElement("p");
+          row.append(`${original.name}: `);
+          if (item.result === "DONE_AND_SAVED" && item.signature) {
+            const link = document.createElement("a");
+            link.href = `data:application/pdf;base64,${item.signature}`;
+            link.download = signedFileName(original.name, "PAdES");
+            link.textContent = "Descargar PDF firmado";
+            row.append(link);
+          } else {
+            row.append(`No firmado: ${item.description ?? item.result}`);
+          }
+          result.append(row);
+        }
+        return;
+      }
       const signature = await client.sign({
         data: selected,
         format: selectedFormat,

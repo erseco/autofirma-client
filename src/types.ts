@@ -68,6 +68,28 @@ export interface AutoScriptApi {
   setAppName?: (name: string) => void;
   setLocale?: (locale: string) => void;
   sign: SignatureOperation;
+  createBatch?: (
+    algorithm: string,
+    format: string,
+    suboperation: string,
+    parameters: string,
+  ) => void;
+  addDocumentToBatch?: (
+    id: string,
+    data: string,
+    format: null,
+    suboperation: null,
+    parameters: null,
+  ) => void;
+  setLocalBatchProcess?: (local: boolean) => void;
+  signBatchProcess?: (
+    stopOnError: boolean,
+    preSignerUrl: null,
+    postSignerUrl: null,
+    certificateFilters: string,
+    success: (result: unknown, certificate?: string) => void,
+    failure: NativeFailureCallback,
+  ) => void;
   coSign?: SignatureOperation;
   counterSign?: SignatureOperation;
   selectCertificate?: (
@@ -142,9 +164,37 @@ export interface CheckTimeOptions {
  */
 export interface SignatureClient {
   sign(options: SignOptions): Promise<SignResult>;
+  signBatch(options: SignBatchOptions): Promise<SignBatchResult>;
   coSign(options: SignOptions): Promise<SignResult>;
   counterSign(options: SignOptions): Promise<SignResult>;
   selectCertificate(parameters?: ExtraParameters): Promise<CertificateResult>;
   saveDataToFile(options: SaveOptions): Promise<void>;
   checkTime(options?: CheckTimeOptions): Promise<void>;
+}
+
+/** Lote local con formato y parámetros comunes a todos los documentos. */
+export interface SignBatchOptions {
+  readonly documents: readonly {
+    readonly id: string;
+    readonly data: SignableData;
+  }[];
+  readonly format: SignatureFormat;
+  readonly algorithm?: SignatureAlgorithm;
+  readonly parameters?: ExtraParameters;
+  readonly certificateFilters?: ExtraParameters;
+  /** Por defecto false: conserva las firmas correctas si otra falla. */
+  readonly stopOnError?: boolean;
+}
+
+/** Resultado nativo por documento; DONE_AND_SAVED no implica guardado en servidor. */
+export interface BatchDocumentResult {
+  readonly id: string;
+  readonly result: string;
+  readonly signature?: string;
+  readonly description?: string;
+}
+
+export interface SignBatchResult {
+  readonly signs: readonly BatchDocumentResult[];
+  readonly certificate?: string;
 }

@@ -1,6 +1,7 @@
 import {
   invokeSignatureOperation,
   resolveAutoScript,
+  readBatchResults,
 } from "./autoscript-adapter.js";
 import { AutoFirmaError, fromNativeError } from "./errors.js";
 import { serializeParameters } from "./parameters.js";
@@ -16,7 +17,12 @@ import type {
   SignatureOperation,
   SignOptions,
   SignResult,
+  SignBatchOptions,
+  SignBatchResult,
 } from "./types.js";
+
+// AutoScript comparte callbacks y el lote incluso entre varias fachadas.
+const activeOperations = new WeakSet<AutoScriptApi>();
 
 const DEFAULT_ALGORITHM = "SHA256withRSA";
 
@@ -60,6 +66,80 @@ export class AutoFirmaClient implements SignatureClient {
     return this.execute(this.autoScript.sign, options);
   }
 
+  /** Firma un lote local; los parámetros (incluido el sello) son comunes. */
+  public signBatch(options: SignBatchOptions): Promise<SignBatchResult> {
+    const api = this.autoScript;
+    const {
+      createBatch,
+      addDocumentToBatch,
+      setLocalBatchProcess,
+      signBatchProcess,
+    } = api;
+    if (
+      !createBatch ||
+      !addDocumentToBatch ||
+      !setLocalBatchProcess ||
+      !signBatchProcess
+    ) {
+      return this.unsupported("signBatchProcess");
+    }
+    return this.withOperation(async () => {
+      const ids = new Set(options.documents.map(({ id }) => id));
+      if (
+        !ids.size ||
+        ids.size !== options.documents.length ||
+        [...ids].some((id) => typeof id !== "string" || !id.trim())
+      ) {
+        throw new AutoFirmaError(
+          "Batch document IDs must be non-empty and unique",
+          "INVALID_BATCH",
+        );
+      }
+      // Convertimos antes de modificar el lote global de AutoScript.
+      const documents = await Promise.all(
+        options.documents.map(async ({ id, data }) => ({
+          id,
+          data: await toBase64(data),
+        })),
+      );
+      const parameters = serializeParameters(options.parameters);
+      const filters = serializeParameters(options.certificateFilters);
+      createBatch(
+        options.algorithm ?? DEFAULT_ALGORITHM,
+        options.format,
+        "sign",
+        parameters,
+      );
+      for (const { id, data } of documents) {
+        addDocumentToBatch(id, data, null, null, null);
+      }
+      setLocalBatchProcess(true);
+      try {
+        return await new Promise<SignBatchResult>((resolve, reject) => {
+          signBatchProcess(
+            options.stopOnError ?? false,
+            null,
+            null,
+            filters,
+            (data, certificate) => {
+              try {
+                resolve({
+                  signs: readBatchResults(data, ids),
+                  ...(certificate ? { certificate } : {}),
+                });
+              } catch (error) {
+                reject(error);
+              }
+            },
+            (type, message) => reject(fromNativeError(type, message)),
+          );
+        });
+      } finally {
+        setLocalBatchProcess(false);
+      }
+    });
+  }
+
   /**
    * Añade una firma al mismo nivel cuando AutoScript expone la operación.
    */
@@ -88,13 +168,16 @@ export class AutoFirmaClient implements SignatureClient {
       return this.unsupported("selectCertificate");
     }
 
-    return new Promise((resolve, reject) => {
-      this.autoScript.selectCertificate?.(
-        serializeParameters(parameters),
-        (certificate) => resolve({ certificate }),
-        (type, message) => reject(fromNativeError(type, message)),
-      );
-    });
+    return this.withOperation(
+      () =>
+        new Promise((resolve, reject) => {
+          this.autoScript.selectCertificate?.(
+            serializeParameters(parameters),
+            (certificate) => resolve({ certificate }),
+            (type, message) => reject(fromNativeError(type, message)),
+          );
+        }),
+    );
   }
 
   /**
@@ -107,17 +190,20 @@ export class AutoFirmaClient implements SignatureClient {
       return this.unsupported("saveDataToFile");
     }
 
-    return new Promise((resolve, reject) => {
-      operation(
-        options.data,
-        options.title,
-        options.filename,
-        options.extension,
-        options.description,
-        () => resolve(),
-        (type, message) => reject(fromNativeError(type, message)),
-      );
-    });
+    return this.withOperation(
+      () =>
+        new Promise((resolve, reject) => {
+          operation(
+            options.data,
+            options.title,
+            options.filename,
+            options.extension,
+            options.description,
+            () => resolve(),
+            (type, message) => reject(fromNativeError(type, message)),
+          );
+        }),
+    );
   }
 
   /**
@@ -205,12 +291,29 @@ export class AutoFirmaClient implements SignatureClient {
     operation: SignatureOperation,
     options: SignOptions,
   ): Promise<SignResult> {
-    return invokeSignatureOperation(
-      operation,
-      await toBase64(options.data),
-      options.algorithm ?? DEFAULT_ALGORITHM,
-      options.format,
-      serializeParameters(options.parameters),
+    return this.withOperation(async () =>
+      invokeSignatureOperation(
+        operation,
+        await toBase64(options.data),
+        options.algorithm ?? DEFAULT_ALGORITHM,
+        options.format,
+        serializeParameters(options.parameters),
+      ),
     );
+  }
+  /** Evita pisar callbacks nativos; libera también tras cancelaciones y errores. */
+  private async withOperation<T>(run: () => Promise<T>): Promise<T> {
+    if (activeOperations.has(this.autoScript)) {
+      throw new AutoFirmaError(
+        "An AutoFirma operation is already running",
+        "OPERATION_IN_PROGRESS",
+      );
+    }
+    activeOperations.add(this.autoScript);
+    try {
+      return await run();
+    } finally {
+      activeOperations.delete(this.autoScript);
+    }
   }
 }

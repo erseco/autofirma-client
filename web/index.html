@@ -33,7 +33,11 @@
 
         <div>
           <label for="file">Fichero a firmar</label><br />
-          <input type="file" id="file" />
+          <input type="file" id="file" multiple aria-describedby="batch-help" />
+          <p id="batch-help">
+            Puedes seleccionar varios PDF para firmarlos juntos en PAdES. El
+            sello se aplica en la misma posición en todos.
+          </p>
           <p class="hint">
             No hay un tamaño máximo declarado: el fichero viaja entero a
             AutoFirma en una sola pieza, codificado en Base64, lo que lo hace un
@@ -123,7 +127,7 @@
         </fieldset>
 
         <button id="sign" type="button">Firmar</button>
-        <p id="result" aria-live="polite"></p>
+        <div id="result" aria-live="polite"></div>
         <dl id="certificate"></dl>
         <a id="download" hidden>Descargar el fichero firmado</a>
 

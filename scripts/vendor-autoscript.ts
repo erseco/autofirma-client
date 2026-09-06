@@ -1,8 +1,8 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-// Extensión .ts literal: Node ejecuta este script con borrado nativo de tipos y
-// no remapea .js a .ts. Las pruebas importan .js porque Vitest sí lo resuelve.
+// El comando vendor compila este script con tsup antes de ejecutarlo, también
+// en Node 20. La extensión literal permite además ejecutarlo en Node reciente.
 import { parseAutoscriptConstants, sha256Hex } from "./upstream.ts";
 
 export interface UpstreamLock {
@@ -96,6 +96,6 @@ async function main(): Promise<void> {
   );
 }
 
-if (process.argv[1]?.endsWith("vendor-autoscript.ts")) {
+if (/vendor-autoscript\.(ts|js)$/.test(process.argv[1] ?? "")) {
   await main();
 }

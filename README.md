@@ -150,6 +150,54 @@ Para probar una integración local sin usar documentos reales:
 Contienen datos ficticios. Una firma generada con ellos no demuestra que la
 integración valide certificados, cadenas de confianza o revocación.
 
+## Firma local de varios PDF
+
+```typescript
+const batch = await client.signBatch({
+  documents: files.map((data, index) => ({ id: String(index), data })),
+  format: "PAdES",
+  parameters: {
+    layer2Text: "Firmado por $$SUBJECTCN$$",
+    signaturePage: 1,
+    signaturePositionOnPageLowerLeftX: 40,
+    signaturePositionOnPageLowerLeftY: 40,
+    signaturePositionOnPageUpperRightX: 260,
+    signaturePositionOnPageUpperRightY: 110,
+  },
+});
+for (const item of batch.signs) {
+  if (item.result === "DONE_AND_SAVED" && item.signature) {
+    // Descargar o guardar item.signature (Base64), asociándolo por item.id.
+  } else {
+    console.error(item.id, item.result, item.description);
+  }
+}
+```
+
+El formato, algoritmo y parámetros son comunes a todo el lote. Para PDF, el
+sello usa el mismo texto, página y rectángulo en todos: comprueba que esa página
+y posición existen en cada documento. La demo permite seleccionar varios PDF.
+
+Es un lote JSON **local**, mediante `signBatchProcess`, sin servicios de prefirma
+ni postfirma. No es la operación XML `AutoScript.signBatch`. Se devuelven los
+estados nativos por ID (`DONE_AND_SAVED`, `ERROR_PRE`, `SKIPPED`); un callback
+correcto no implica que todos los PDF se hayan firmado, y `DONE_AND_SAVED` no
+significa que se haya guardado nada en WordPress u otro servidor.
+
+`stopOnError` vale `false` por defecto para conservar los éxitos parciales.
+Con `true`, AutoFirma puede descartar incluso las firmas anteriores al error.
+`certificateFilters` admite parámetros para seleccionar el certificado.
+El cliente rechaza lotes vacíos, IDs vacíos o repetidos y respuestas sin
+correspondencia exacta con los documentos enviados.
+
+Las operaciones asíncronas del wrapper sobre un mismo AutoScript no se pueden
+solapar (error `OPERATION_IN_PROGRESS`), ni siquiera creando dos clientes.
+Las llamadas directas a `raw` quedan fuera de esa protección. Los documentos y
+resultados viajan completos en memoria; los límites del transporte intermedio
+se aplican al mensaje agregado y codificado. El soporte está contrastado con el
+AutoScript fijado; la firma real y el soporte móvil dependen de la aplicación
+nativa instalada y deben probarse en el entorno de destino.
+
 ## Errores
 
 Todo fallo llega como `AutoFirmaError`, que conserva intactos `nativeType` y
@@ -222,16 +270,10 @@ Hay que fijarlo **antes de clonar**: en un clon ya hecho no basta con activarlo,
 hay que volver a clonar o restaurar esas rutas. Además, Windows exige modo de
 desarrollador o privilegios de administrador para crear enlaces simbólicos.
 
-> [!NOTE]
-> `prepack` (y por tanto `npm pack` y `npm publish`) ejecuta
-> `scripts/vendor-autoscript.ts` directamente con `node`, que necesita el
-> soporte nativo de tipos activado por defecto (Node ≥22.18 o ≥23.6; en
-> versiones anteriores de la línea 22 existe solo tras la flag
-> `--experimental-strip-types`). Es intencional: la librería en sí es
-> compatible con Node 20 (`engines.node`), pero los scripts de mantenimiento
-> no. Empaquetar con una versión de Node anterior a esa falla con un error de
-> sintaxis poco claro; usa Node 22.18 o superior para generar el tarball o
-> publicar.
+`prepare` construye el wrapper e incluye el AutoScript fijado también al instalar
+desde un commit Git. El comando `vendor` compila su script con el `tsup` ya
+instalado antes de ejecutarlo, por lo que funciona también con Node 20 y no
+necesita borrado nativo de tipos. La carpeta temporal `.vendor-script/` se ignora.
 
 Los objetivos rápidos son:
 
