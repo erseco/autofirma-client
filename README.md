@@ -270,16 +270,10 @@ Hay que fijarlo **antes de clonar**: en un clon ya hecho no basta con activarlo,
 hay que volver a clonar o restaurar esas rutas. Además, Windows exige modo de
 desarrollador o privilegios de administrador para crear enlaces simbólicos.
 
-> [!NOTE]
-> `prepack` (y por tanto `npm pack` y `npm publish`) ejecuta
-> `scripts/vendor-autoscript.ts` directamente con `node`, que necesita el
-> soporte nativo de tipos activado por defecto (Node ≥22.18 o ≥23.6; en
-> versiones anteriores de la línea 22 existe solo tras la flag
-> `--experimental-strip-types`). Es intencional: la librería en sí es
-> compatible con Node 20 (`engines.node`), pero los scripts de mantenimiento
-> no. Empaquetar con una versión de Node anterior a esa falla con un error de
-> sintaxis poco claro; usa Node 22.18 o superior para generar el tarball o
-> publicar.
+`prepare` construye el wrapper e incluye el AutoScript fijado también al instalar
+desde un commit Git. El comando `vendor` compila su script con el `tsup` ya
+instalado antes de ejecutarlo, por lo que funciona también con Node 20 y no
+necesita borrado nativo de tipos. La carpeta temporal `.vendor-script/` se ignora.
 
 Los objetivos rápidos son:
 

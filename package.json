@@ -54,11 +54,11 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepack": "npm run vendor && npm run build",
-    "prepare": "npm run build",
+    "prepare": "npm run build && npm run vendor",
     "test": "vitest run --coverage",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
-    "vendor": "node scripts/vendor-autoscript.ts"
+    "vendor": "tsup scripts/vendor-autoscript.ts --format esm --out-dir .vendor-script && node .vendor-script/vendor-autoscript.js"
   },
   "publishConfig": {
     "access": "public"

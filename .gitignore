@@ -8,3 +8,4 @@ vendor/
 .worktrees/
 .superpowers/
 upstream-change.txt
+.vendor-script/
