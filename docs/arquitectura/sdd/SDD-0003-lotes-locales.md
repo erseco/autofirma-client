@@ -9,7 +9,7 @@ fecha: 2026-09-06
 
 ## Alcance
 
-Exponer `signBatch` como lote JSON local con parámetros comunes, IDs únicos y resultados nativos por documento. Impedir operaciones concurrentes sobre el mismo AutoScript y restaurar el modo local al terminar.
+Exponer `signBatch` como lote JSON local con parámetros comunes —o propios de cada documento, que AutoFirma usa en su lugar—, IDs únicos y resultados nativos por documento. Impedir operaciones concurrentes sobre el mismo AutoScript y restaurar el modo local al terminar.
 
 ## Flujo y errores
 
