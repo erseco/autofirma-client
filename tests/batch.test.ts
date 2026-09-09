@@ -72,6 +72,69 @@ describe("lotes locales", () => {
     expect(native.setLocalBatchProcess).toHaveBeenNthCalledWith(1, true);
     expect(native.setLocalBatchProcess).toHaveBeenLastCalledWith(false);
   });
+  it("envía los parámetros propios de un documento y el resto hereda los del lote", async () => {
+    // Contrato: addDocumentToBatch(id, datareference, format, suboperation,
+    // extraparams) en AutoScript; JSONBatchManager usa los de la singlesign en
+    // lugar de los del lote cuando vienen, y copia los del lote si no.
+    const native = api();
+    native.signBatchProcess = vi.fn((_s, _p, _o, _f, success) =>
+      success({
+        signs: ["a", "b", "c"].map((id) => ({
+          id,
+          result: "DONE_AND_SAVED",
+          signature: "c2lnbmVk",
+        })),
+      }),
+    );
+    await new AutoFirmaClient({ autoScript: native }).signBatch({
+      ...options,
+      documents: [
+        {
+          id: "a",
+          data: "SGk=",
+          parameters: { signaturePage: "2,4", layer2Text: "Propio" },
+        },
+        { id: "b", data: "SGk=" },
+        { id: "c", data: "SGk=", parameters: {} },
+      ],
+    });
+    expect(native.addDocumentToBatch).toHaveBeenNthCalledWith(
+      1,
+      "a",
+      "SGk=",
+      null,
+      null,
+      "signaturePage=2,4\nlayer2Text=Propio",
+    );
+    expect(native.addDocumentToBatch).toHaveBeenNthCalledWith(
+      2,
+      "b",
+      "SGk=",
+      null,
+      null,
+      null,
+    );
+    // Vacío: AutoScript no lo añade y AutoFirma copia los del lote.
+    expect(native.addDocumentToBatch).toHaveBeenNthCalledWith(
+      3,
+      "c",
+      "SGk=",
+      null,
+      null,
+      "",
+    );
+  });
+  it("rechaza parámetros por documento inválidos antes de crear el lote", async () => {
+    const native = api();
+    await expect(
+      new AutoFirmaClient({ autoScript: native }).signBatch({
+        ...options,
+        documents: [{ id: "a", data: "SGk=", parameters: { "mala=clave": 1 } }],
+      }),
+    ).rejects.toThrow(TypeError);
+    expect(native.createBatch).not.toHaveBeenCalled();
+    expect(native.setLocalBatchProcess).not.toHaveBeenCalled();
+  });
   it("admite algoritmo, filtros y parada explícitos sin certificado de respuesta", async () => {
     const native = api();
     native.signBatchProcess = vi.fn((_s, _p, _o, _f, success) =>

@@ -4,6 +4,8 @@
 
 ### Añadido
 
+- `signBatch` firma varios documentos en un lote JSON local (`signBatchProcess`) con resultados nativos por ID
+- Cada documento de `signBatch` acepta `parameters` propios, que AutoFirma usa en lugar de los del lote: cada PDF puede llevar el sello en su página y su rectángulo
 - `fromBase64` convierte resultados Base64 a `Uint8Array` sin depender de Node.js
 - `isAutoScriptAvailable` permite comprobar de forma segura si el bridge global de AutoScript está cargado
 - `AutoFirmaClientOptions` acepta `appName` y `locale`, que se reenvían a AutoScript cuando la versión utilizada expone `setAppName` y `setLocale`

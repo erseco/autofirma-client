@@ -79,7 +79,7 @@ export interface AutoScriptApi {
     data: string,
     format: null,
     suboperation: null,
-    parameters: null,
+    parameters: string | null,
   ) => void;
   setLocalBatchProcess?: (local: boolean) => void;
   signBatchProcess?: (
@@ -172,11 +172,21 @@ export interface SignatureClient {
   checkTime(options?: CheckTimeOptions): Promise<void>;
 }
 
-/** Lote local con formato y parámetros comunes a todos los documentos. */
+/**
+ * Lote local con formato y parámetros comunes a todos los documentos, salvo
+ * los que cada documento traiga como propios.
+ */
 export interface SignBatchOptions {
   readonly documents: readonly {
     readonly id: string;
     readonly data: SignableData;
+    /**
+     * Parámetros propios de este documento. AutoFirma los usa **en lugar de**
+     * los del lote, no encima: si un documento trae los suyos, tiene que
+     * traerlos completos. Un objeto vacío hereda los del lote. Sirve para que
+     * cada PDF lleve su sello en su página y su rectángulo.
+     */
+    readonly parameters?: ExtraParameters;
   }[];
   readonly format: SignatureFormat;
   readonly algorithm?: SignatureAlgorithm;

@@ -66,7 +66,10 @@ export class AutoFirmaClient implements SignatureClient {
     return this.execute(this.autoScript.sign, options);
   }
 
-  /** Firma un lote local; los parámetros (incluido el sello) son comunes. */
+  /**
+   * Firma un lote local. Los parámetros del lote son comunes; un documento
+   * puede traer los suyos, que AutoFirma usa en lugar de los comunes.
+   */
   public signBatch(options: SignBatchOptions): Promise<SignBatchResult> {
     const api = this.autoScript;
     const {
@@ -95,11 +98,14 @@ export class AutoFirmaClient implements SignatureClient {
           "INVALID_BATCH",
         );
       }
-      // Convertimos antes de modificar el lote global de AutoScript.
+      // Convertimos y serializamos antes de modificar el lote global de
+      // AutoScript: un parámetro inválido rechaza sin dejar un lote a medias.
       const documents = await Promise.all(
-        options.documents.map(async ({ id, data }) => ({
+        options.documents.map(async ({ id, data, parameters }) => ({
           id,
           data: await toBase64(data),
+          parameters:
+            parameters === undefined ? null : serializeParameters(parameters),
         })),
       );
       const parameters = serializeParameters(options.parameters);
@@ -110,8 +116,8 @@ export class AutoFirmaClient implements SignatureClient {
         "sign",
         parameters,
       );
-      for (const { id, data } of documents) {
-        addDocumentToBatch(id, data, null, null, null);
+      for (const { id, data, parameters } of documents) {
+        addDocumentToBatch(id, data, null, null, parameters);
       }
       setLocalBatchProcess(true);
       try {

@@ -174,9 +174,23 @@ for (const item of batch.signs) {
 }
 ```
 
-El formato, algoritmo y parámetros son comunes a todo el lote. Para PDF, el
-sello usa el mismo texto, página y rectángulo en todos: comprueba que esa página
-y posición existen en cada documento. La demo permite seleccionar varios PDF.
+El formato y el algoritmo son comunes a todo el lote, y los parámetros también
+salvo que un documento traiga los suyos: AutoFirma usa entonces esos **en lugar
+de** los del lote —no los mezcla—, así que tienen que ir completos. Sirve para
+que cada PDF lleve el sello en su página y su rectángulo, que no tienen por qué
+coincidir de un documento a otro:
+
+```typescript
+documents: models.map(({ id, data, page, box }) => ({
+  id,
+  data,
+  parameters: { layer2Text: "Firmado por $$SUBJECTCN$$", signaturePage: page, ...box },
+})),
+```
+
+Sin `parameters` propios, el sello usa el mismo texto, página y rectángulo en
+todos: comprueba que esa página y posición existen en cada documento. La demo
+permite seleccionar varios PDF.
 
 Es un lote JSON **local**, mediante `signBatchProcess`, sin servicios de prefirma
 ni postfirma. No es la operación XML `AutoScript.signBatch`. Se devuelven los
