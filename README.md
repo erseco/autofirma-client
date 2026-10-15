@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/erseco/autofirma-client/actions/workflows/ci.yml/badge.svg)](https://github.com/erseco/autofirma-client/actions/workflows/ci.yml)
 [![Codecov](https://codecov.io/gh/erseco/autofirma-client/graph/badge.svg)](https://codecov.io/gh/erseco/autofirma-client)
+[![npm version](https://img.shields.io/npm/v/%40erseco%2Fautofirma-client)](https://www.npmjs.com/package/@erseco/autofirma-client)
 [![License](https://img.shields.io/github/license/erseco/autofirma-client)](LICENSE)
 
 Cliente TypeScript para usar la API oficial **AutoScript** con promesas,
@@ -24,9 +25,13 @@ política de compatibilidad en
 
 ## Instalación
 
+Instala el paquete desde el [registro público de npm](https://www.npmjs.com/package/@erseco/autofirma-client):
+
 ```bash
 npm install @erseco/autofirma-client
 ```
+
+No necesitas clonar el repositorio ni configurar GitHub Packages.
 
 El paquete incluye una copia fijada y verificada por hash de `autoscript.js`
 en `vendor/autoscript.js`; no hace falta descargarla aparte. Ese fichero no es
@@ -336,17 +341,10 @@ contrapartida del versionado en espejo.
 > ella y los rangos habituales dejarán de resolver preversiones, porque un rango
 > como `^1.10.1` no las acepta.
 
-GitHub Packages no admite Trusted Publishing, así que ese paso se autentica con
-el `GITHUB_TOKEN` efímero del propio workflow y necesita el permiso
-`packages: write`. Para instalar desde ahí hay que apuntar el ámbito `@erseco`
-a ese registro y autenticarse, porque incluso los paquetes públicos de GitHub
-Packages exigen credenciales para descargarse:
-
-```
-@erseco:registry=https://npm.pkg.github.com
-```
-
-Quien no quiera ese paso adicional tiene el paquete en npm sin autenticación.
+GitHub Packages no admite Trusted Publishing, así que su publicación utiliza
+el `GITHUB_TOKEN` efímero del workflow y requiere `packages: write`. Para
+instalar el paquete, utiliza el registro público de npm como se indica en
+[Instalación](#instalación), sin autenticación de GitHub Packages.
 
 ## Documentación
 
