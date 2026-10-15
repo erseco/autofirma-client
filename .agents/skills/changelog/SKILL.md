@@ -28,7 +28,7 @@ Si no lo tiene claro, o es la tarea recurrente de «mira si hay PR nuevos», usa
 
 Léelo antes de escribir ninguna entrada; cambia qué número lleva el encabezado y qué merece aparecer.
 
-- **La versión no se inventa ni se calcula.** Es la del tag mayor del repositorio oficial `ctt-gob-es/clienteafirma`, que registra `autoscript.lock.json` en su campo `tag` y refleja `package.json` (ver [ADR-0004](../../../docs/arquitectura/adr/ADR-0004-versionado-en-espejo.md)). En el modo B, léela de ahí en vez de preguntarla.
+- **La versión no se inventa.** Es la de `package.json`, cuyo mayor y menor siguen el campo `tag` de `autoscript.lock.json` (ver [ADR-0010](../../../docs/arquitectura/adr/ADR-0010-parche-propio.md)). En el modo B, léela de ahí en vez de preguntarla.
 - **Un cambio de pin es la entrada más importante que puede haber.** Si `autoscript.lock.json` cambió, di qué versión de AutoScript se empaqueta ahora y de qué tag sale. Quien integra necesita eso más que cualquier otra línea.
 - **Las versiones `canary` no se documentan.** Se publica una por push a `main`; el CHANGELOG cubre releases, no el canal de pruebas.
 - **El texto va en español**, como el resto de documentación de cara a personas usuarias. El código, los identificadores y los nombres de fichero, en inglés.
@@ -100,7 +100,7 @@ node -p "require('./autoscript.lock.json').tag"
 node -p "require('./package.json').version"
 ```
 
-Deben coincidir (`v1.9.2` ↔ `1.9.2`); si no, para y avísalo, porque el workflow de release también lo comprueba y fallaría. Usa esa versión en el encabezado. La fecha es la de hoy en formato `aaaa-mm-dd`.
+Mayor y menor deben coincidir (`v1.9.2` ↔ `1.9.3`); si no, para y avísalo, porque el workflow de release también lo comprueba y fallaría. Usa esa versión en el encabezado. La fecha es la de hoy en formato `aaaa-mm-dd`.
 
 ### B.1 Encontrar la última release publicada
 

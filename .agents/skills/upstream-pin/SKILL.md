@@ -54,7 +54,7 @@ Revisa también si cambió el valor de alguna constante que pasemos como paráme
 
 ## 4. Decidir la versión
 
-La regla es el espejo (ADR-0004): `package.json` debe valer exactamente lo que el campo `tag` del lock, sin la `v`. El PR del vigilante **no toca `package.json`**, así que si vas a publicar, actualízalo en el mismo PR. El workflow de release comprueba que tag, `package.json` y lock coinciden, y falla si no.
+La regla es ADR-0010: mayor y menor de `package.json` deben ser los del campo `tag` del lock; el parche es del wrapper. Con una línea nueva (p. ej. `v1.10.0`) publica `1.10.0`; con un parche oficial dentro de la misma línea, sube solo el parche propio. El PR del vigilante **no toca `package.json`**, así que si vas a publicar, actualízalo en el mismo PR. El workflow de release comprueba que el tag es la versión de `package.json` y que comparte mayor y menor con el lock, y falla si no.
 
 Ojo con una trampa real de este upstream: los tags no ordenan el contenido. `v1.9.1` lleva AutoScript 1.10.1 y `v1.9.2`, posterior, lleva 1.9.0, porque cuelga de una línea divergente. Que el tag suba no garantiza que el AutoScript empaquetado sea más nuevo. Deja constancia en el PR de qué versión de AutoScript entra realmente.
 

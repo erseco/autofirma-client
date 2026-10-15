@@ -14,13 +14,13 @@ Una publicación en npm es **irreversible**: un número de versión no se puede 
 ## 1. Comprobar la triple coincidencia
 
 ```bash
-node -p "require('./package.json').version"        # p.ej. 1.9.2
-node -p "require('./autoscript.lock.json').tag"    # debe ser v1.9.2
+node -p "require('./package.json').version"        # p.ej. 1.9.3
+node -p "require('./autoscript.lock.json').tag"    # p.ej. v1.9.2: mismo mayor y menor
 ```
 
 El tag que se va a crear debe ser esa misma versión con `v` delante. El workflow lo comprueba y aborta si no cuadra, pero descubrirlo aquí evita un release fallido y un tag que hay que borrar.
 
-Si no coinciden, la regla que decide es el espejo (ADR-0004): manda el tag del lock, y `package.json` se ajusta a él, nunca al revés.
+Si mayor y menor no coinciden, manda el tag del lock (ADR-0010) y `package.json` se ajusta a él. El parche es propio: súbelo para cada corrección del wrapper y comprueba con `npm view @erseco/autofirma-client time` que el número no se usó nunca, ni siquiera en una versión despublicada.
 
 ## 2. Pasar las mismas puertas que la CI
 

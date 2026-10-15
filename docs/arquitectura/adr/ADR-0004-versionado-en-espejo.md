@@ -1,7 +1,7 @@
 ---
 id: ADR-0004
 titulo: "Versión en espejo del tag de AutoFirma"
-estado: Aceptado
+estado: Sustituido
 fecha: 2026-07-31
 relacionados:
   issues: []
@@ -9,7 +9,7 @@ relacionados:
   sdds: [SDD-0002]
   adrs: []
 sustituye: [ADR-0001]
-sustituido_por: []
+sustituido_por: [ADR-0010]
 asistencia_ia:
   herramienta: ""
   modelo: ""

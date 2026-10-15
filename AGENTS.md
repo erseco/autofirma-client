@@ -51,8 +51,10 @@ operación en `vendor/autoscript.js`.
 
 ## Compatibilidad y versiones
 
-- La versión del paquete es la del tag mayor del repositorio oficial
-  `ctt-gob-es/clienteafirma`, no la línea de AutoScript: ver ADR-0004.
+- Mayor y menor del paquete son los del tag fijado del repositorio oficial
+  `ctt-gob-es/clienteafirma`; el parche es propio del wrapper: ver ADR-0010.
+  Nunca reutilices un número: npm no lo admite aunque se despublique, y
+  `1.9.2` ya está quemado.
 - El `autoscript.js` fijado y sus constantes (`VERSION`, `VERSION_CODE`,
   `PROTOCOL_VERSION`) quedan registrados en `autoscript.lock.json`, la única
   fuente de verdad sobre qué AutoScript corresponde a cada versión publicada.
