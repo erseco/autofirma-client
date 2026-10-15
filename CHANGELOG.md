@@ -1,6 +1,10 @@
 # CHANGELOG
 
-## Sin publicar
+## v1.9.3 – 2026-10-15
+
+Primera versión estable en npm. Empaqueta el AutoScript del tag oficial
+`v1.9.2` (AutoScript `1.9.0`). Desde esta versión el parche es propio del
+wrapper (ADR-0010).
 
 ### Añadido
 
@@ -13,7 +17,7 @@
 
 ## v1.9.2 – 2026-08-01
 
-Primera versión publicada.
+Se publicó en npm y se retiró el mismo día; el número no puede reutilizarse.
 
 ### Añadido
 

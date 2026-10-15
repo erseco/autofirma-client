@@ -14,12 +14,15 @@ tipado estricto, conversión de datos, errores normalizados y dobles de prueba.
 
 ## Estado
 
-El proyecto está en una fase inicial. La versión del paquete refleja el tag
-del repositorio oficial `ctt-gob-es/clienteafirma`, no una línea propia de
-AutoScript (ver [ADR-0004](docs/arquitectura/adr/ADR-0004-versionado-en-espejo.md)).
+La API pública es estable dentro de la línea `1.9` y se publica bajo `latest`;
+lo que va entrando en `main` sale antes por el canal `canary`. El mayor y el
+menor del paquete siguen la línea del repositorio oficial
+`ctt-gob-es/clienteafirma`, y el parche versiona el wrapper (ver
+[ADR-0010](docs/arquitectura/adr/ADR-0010-parche-propio.md)).
 La versión de AutoScript realmente empaquetada, y sus constantes, son las que
 registra `autoscript.lock.json`, la única fuente de verdad al respecto: hoy
-fija el tag `v1.9.2`, que corresponde a AutoScript `1.9.0`. Consulta la
+fija el tag `v1.9.2`, que corresponde a AutoScript `1.9.0`, y lo empaqueta
+la versión `1.9.3` del paquete. Consulta la
 política de compatibilidad en
 [AGENTS.md](AGENTS.md#compatibilidad-y-versiones) antes de actualizar.
 
@@ -305,8 +308,8 @@ Los objetivos rápidos son:
 ## Publicación
 
 Cada tag `v*` ejecuta `.github/workflows/publish.yml`: comprueba que el tag
-coincide con la versión de `package.json` y con el tag fijado en
-`autoscript.lock.json`, repite todos los controles, verifica que el tarball
+coincide con la versión de `package.json` y que esta comparte mayor y menor
+con el tag fijado en `autoscript.lock.json`, repite todos los controles, verifica que el tarball
 generado contiene `vendor/autoscript.js` con el `sha256` que registra el
 lock y publica ese mismo tarball ya verificado (`npm publish artifacts/*.tgz`,
 sin volver a empaquetar) en tres sitios: el registro público de npm, el gestor
@@ -331,15 +334,9 @@ npm install @erseco/autofirma-client@canary
 
 Su número parte del **patch siguiente** al de `package.json`, no del actual: una
 preversión ordena por debajo de su versión, de modo que sobre el patch actual
-ocuparía el hueco de la que está por salir. Es además la única vía para publicar
-correcciones del wrapper entre dos tags de AutoFirma, que ADR-0004 registró como
-contrapartida del versionado en espejo.
-
-> **Todavía no hay ninguna versión estable en npm.** Mientras siga así, `latest`
-> apunta a una canary y `npm install @erseco/autofirma-client` sin sufijo
-> entrega una preversión. Al publicarse la primera estable, `latest` pasará a
-> ella y los rangos habituales dejarán de resolver preversiones, porque un rango
-> como `^1.10.1` no las acepta.
+ocuparía el hueco de la que está por salir. Los rangos habituales, como
+`^1.9.3`, no resuelven preversiones: quien quiera la canary tiene que pedirla
+expresamente.
 
 GitHub Packages no admite Trusted Publishing, así que su publicación utiliza
 el `GITHUB_TOKEN` efímero del workflow y requiere `packages: write`. Para

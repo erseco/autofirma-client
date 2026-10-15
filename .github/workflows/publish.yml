@@ -42,16 +42,16 @@ jobs:
             echo "dist_tag=canary" >> "${GITHUB_OUTPUT}"
           fi
 
-      # En una release, la versión del paquete, la del tag y la del pin tienen
-      # que coincidir: publicar un tarball que no corresponde al tag anunciado
-      # es la clase de error que solo se descubre cuando ya está publicado.
+      # En una release, el tag debe ser la versión del paquete, y esta debe
+      # compartir mayor y menor con el pin (ADR-0010): publicar un tarball que
+      # no corresponde al tag anunciado solo se descubre ya publicado.
       - name: Verificar versión y pin
         if: github.ref_type == 'tag'
         run: |
           PACKAGE_VERSION="$(node -p "require('./package.json').version")"
           LOCK_TAG="$(node -p "require('./autoscript.lock.json').tag")"
           test "v${PACKAGE_VERSION}" = "${GITHUB_REF_NAME}"
-          test "v${PACKAGE_VERSION}" = "${LOCK_TAG}"
+          test "$(echo "${PACKAGE_VERSION}" | cut -d. -f1-2)" = "$(echo "${LOCK_TAG#v}" | cut -d. -f1-2)"
 
       - run: make install
       - run: make check
